@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Mingguan Widiya</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --sand:          #F2E8D9;
+  --sand-dark:     #DDD0B8;
+  --terracotta:    #C4622D;
+  --coconut:       #4A2810;
+  --coconut-mid:   #8B5E3C;
+  --sage:          #5C8B5C;
+  --cream:         #FAF6F0;
+  --text-dark:     #2C1A0E;
+  --text-mid:      #6B4A2A;
+  --text-light:    #9C7A5A;
+
+  --hour-height:   64px;
+  --slot-height:   32px;
+  --time-col:      54px;
+  --palette-width: 152px;
+  --day-hdr:       60px;
+  --total-slots:   26;           /* (20-7)*2 = 26 half-hour slots */
+  --grid-height:   896px;        /* 28 * 32 */
+
+  /* Block palette */
+  --morning-bg:    #F5D8C5; --morning-bd: #C4622D; --morning-tx: #5C2008;
+  --evening-bg:    #F5E8B0; --evening-bd: #C4972D; --evening-tx: #5C3A08;
+  --english-bg:    #C5DFF5; --english-bd: #2D72C4; --english-tx: #08285C;
+  --project-bg:    #E8D5F5; --project-bd: #8B5BB5; --project-tx: #38085C;
+  --garden-bg:     #C8EAC8; --garden-bd:  #3A8B3A; --garden-tx:  #0E3A0E;
+  --sport-bg:      #F5C8C8; --sport-bd:   #C43A3A; --sport-tx:   #5C0808;
+  --upskill-bg:    #D5D0F5; --upskill-bd: #5550A5; --upskill-tx: #18085C;
+  --cooking-bg:    #FDE8C0; --cooking-bd: #C47A20; --cooking-tx: #5C3000;
+  --laundry-bg:    #C8EAF5; --laundry-bd: #2A7A9B; --laundry-tx: #083040;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+header {
+  background: var(--coconut);
+  color: var(--sand);
+  overflow: hidden;
+}
+
+.header-inner {
+  padding: 22px 28px 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-left h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--sand);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+.header-left .subtitle {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sand-dark);
+  margin-top: 3px;
+}
+
+.header-left .week-range {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  color: #C8B8A0;
+  margin-top: 7px;
+}
+
+.header-right {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.btn {
+  background: rgba(255,255,255,0.12);
+  color: var(--sand);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 6px;
+  padding: 6px 13px;
+  font-size: 0.76rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(255,255,255,0.22); }
+
+/* Batik SVG strip */
+.batik-strip { display: block; width: 100%; height: 14px; }
+
+/* ===== LEGEND ===== */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 10px 28px;
+  background: var(--sand);
+  border-bottom: 1px solid var(--sand-dark);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ===== APP LAYOUT ===== */
+.app-layout {
+  display: flex;
+  align-items: stretch;
+}
+
+/* ===== PALETTE ===== */
+.palette {
+  width: var(--palette-width);
+  background: var(--sand);
+  border-right: 1px solid var(--sand-dark);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex-shrink: 0;
+  position: sticky;
+  left: 0;
+  z-index: 40;
+  align-self: flex-start;
+  top: 0;
+}
+
+.palette-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  padding: 0 3px;
+  margin-bottom: 2px;
+}
+
+/* ===== BLOCKS (shared) ===== */
+.block {
+  border-radius: 7px;
+  border-left: 3px solid;
+  padding: 7px 9px;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.12s, box-shadow 0.12s;
+  position: relative;
+}
+
+.block:hover    { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.13); }
+.block:active   { cursor: grabbing; }
+.block.dragging { opacity: 0.35; transform: scale(0.95); }
+
+.block-icon     { font-size: 1rem; display: block; margin-bottom: 2px; }
+.block-name     { font-size: 0.76rem; font-weight: 600; line-height: 1.2; margin-bottom: 1px; }
+.block-dur      { font-size: 0.66rem; opacity: 0.65; font-style: italic; }
+
+/* Color classes */
+.b-morning    { background: var(--morning-bg);  border-color: var(--morning-bd);  color: var(--morning-tx); }
+.b-evening    { background: var(--evening-bg);  border-color: var(--evening-bd);  color: var(--evening-tx); }
+.b-english    { background: var(--english-bg);  border-color: var(--english-bd);  color: var(--english-tx); }
+.b-project    { background: var(--project-bg);  border-color: var(--project-bd);  color: var(--project-tx); }
+.b-garden     { background: var(--garden-bg);   border-color: var(--garden-bd);   color: var(--garden-tx);  }
+.b-sport      { background: var(--sport-bg);    border-color: var(--sport-bd);    color: var(--sport-tx);   }
+.b-upskilling { background: var(--upskill-bg);  border-color: var(--upskill-bd);  color: var(--upskill-tx); }
+.b-cooking    { background: var(--cooking-bg);  border-color: var(--cooking-bd);  color: var(--cooking-tx); }
+.b-laundry    { background: var(--laundry-bg);  border-color: var(--laundry-bd);  color: var(--laundry-tx); }
+
+/* ===== CALENDAR WRAPPER ===== */
+.cal-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== CALENDAR GRID ===== */
+.cal-grid {
+  display: grid;
+  grid-template-columns: var(--time-col) repeat(7, minmax(108px, 1fr));
+  min-width: 830px;
+}
+
+/* ===== TIME COLUMN ===== */
+.time-col {
+  background: var(--cream);
+  border-right: 1px solid var(--sand-dark);
+  position: sticky;
+  left: 0;
+  z-index: 30;
+}
+
+.time-col-header {
+  height: var(--day-hdr);
+  border-bottom: 2px solid var(--sand-dark);
+}
+
+.time-label {
+  height: var(--hour-height);
+  display: flex;
+  align-items: flex-start;
+  padding: 4px 6px 0;
+  font-size: 0.67rem;
+  color: var(--text-light);
+  font-weight: 500;
+  border-bottom: 1px solid var(--sand-dark);
+}
+
+/* ===== DAY COLUMNS ===== */
+.day-col {
+  border-right: 1px solid var(--sand-dark);
+  display: flex;
+  flex-direction: column;
+}
+.day-col:last-child { border-right: none; }
+
+.day-header {
+  height: var(--day-hdr);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--sand);
+  border-bottom: 2px solid var(--sand-dark);
+  padding: 6px 4px;
+}
+
+.day-name-id {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--coconut);
+  line-height: 1;
+}
+
+.day-name-en {
+  font-size: 0.62rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-top: 2px;
+}
+
+.day-date {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.72rem;
+  color: var(--text-mid);
+  margin-top: 3px;
+}
+
+.day-col.is-sunday .day-header { background: #F0E8DC; }
+.day-col.is-sunday .day-name-id { color: var(--coconut-mid); }
+
+/* ===== DROP ZONES ===== */
+.drop-zones {
+  position: relative;
+  height: var(--grid-height);
+  flex: 1;
+}
+
+/* Hour grid lines */
+.drop-zones::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(var(--hour-height) - 1px),
+    var(--sand-dark) calc(var(--hour-height) - 1px),
+    var(--sand-dark) var(--hour-height)
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Half-hour guides */
+.drop-zones::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(var(--slot-height) - 1px),
+    rgba(190, 175, 155, 0.35) calc(var(--slot-height) - 1px),
+    rgba(190, 175, 155, 0.35) var(--slot-height)
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.day-col.is-sunday .drop-zones {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent, transparent 10px,
+    rgba(235, 215, 190, 0.25) 10px, rgba(235, 215, 190, 0.25) 11px
+  );
+}
+
+.drop-zone {
+  position: absolute;
+  left: 0; right: 0;
+  height: var(--slot-height);
+  z-index: 2;
+  transition: background 0.1s;
+}
+
+.drop-zone.drag-over {
+  background: rgba(196, 98, 45, 0.14);
+  outline: 2px dashed rgba(196, 98, 45, 0.45);
+  outline-offset: -2px;
+}
+
+/* ===== PLACED BLOCKS ===== */
+.placed-block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border-radius: 7px;
+  border-left: 3px solid;
+  padding: 5px 7px;
+  cursor: grab;
+  user-select: none;
+  z-index: 10;
+  overflow: hidden;
+  transition: box-shadow 0.12s;
+}
+
+.placed-block:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.18); z-index: 20; }
+.placed-block:active { cursor: grabbing; opacity: 0.8; }
+.placed-block .block-name { font-size: 0.73rem; }
+.placed-block .block-dur  { font-size: 0.63rem; }
+
+.placed-block .remove-btn {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.12);
+  color: inherit;
+  border: none;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  padding: 0;
+}
+
+.placed-block:hover .remove-btn { opacity: 0.7; }
+.placed-block .remove-btn:hover { opacity: 1 !important; background: rgba(0,0,0,0.22); }
+
+/* ===== RECURRING PANEL ===== */
+.recurring-panel {
+  padding: 22px 28px;
+  background: var(--sand);
+  border-top: 2px solid var(--sand-dark);
+}
+
+.recurring-panel h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--coconut);
+  margin-bottom: 12px;
+}
+
+.recurring-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.recurring-card {
+  background: var(--cream);
+  border: 1px solid var(--sand-dark);
+  border-radius: 8px;
+  padding: 9px 14px;
+  min-width: 170px;
+}
+
+.recurring-freq {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--terracotta);
+  margin-bottom: 3px;
+}
+
+.recurring-task { font-size: 0.8rem; font-weight: 500; }
+
+/* ===== FOOTER ===== */
+.footer-hint {
+  text-align: center;
+  padding: 10px;
+  font-size: 0.7rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  .palette, .header-right, .footer-hint { display: none !important; }
+  .cal-wrapper { overflow: visible; }
+  .cal-grid { min-width: unset; }
+  .placed-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .placed-block .remove-btn { display: none; }
+  body { background: white; }
+}
+@page { size: A4 landscape; margin: 0.8cm; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 700px) {
+  .app-layout { flex-direction: column; }
+
+  .palette {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px 12px;
+    gap: 8px;
+    border-right: none;
+    border-bottom: 1px solid var(--sand-dark);
+    position: static;
+  }
+
+  .palette-label { display: none; }
+
+  .palette .block {
+    flex-shrink: 0;
+    min-width: 86px;
+    padding: 6px 8px;
+  }
+
+  .header-inner { padding: 14px 16px 12px; flex-wrap: wrap; }
+  .header-left h1 { font-size: 1.4rem; }
+  .header-right { margin-top: 8px; }
+  .legend { padding: 8px 16px; }
+  .recurring-panel { padding: 18px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <h1>Jadwal Mingguan Widiya</h1>
+      <p class="subtitle">Weekly Household Schedule</p>
+      <p class="week-range" id="weekRange">Loading...</p>
+    </div>
+    <div class="header-right">
+      <button class="btn" onclick="clearAll()">🗑 Clear All</button>
+      <button class="btn" id="shareBtn" onclick="shareSchedule()">📤 Share Week</button>
+      <button class="btn" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+
+  <!-- Batik strip -->
+  <svg class="batik-strip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 14" preserveAspectRatio="none" aria-hidden="true">
+    <rect width="800" height="14" fill="#3A1E08"/>
+    <defs>
+      <pattern id="bp" width="40" height="14" patternUnits="userSpaceOnUse">
+        <polygon points="0,7 7,0 14,7 7,14" fill="#B05020" opacity="0.85"/>
+        <polygon points="14,7 21,0 28,7 21,14" fill="#E87840" opacity="0.7"/>
+        <polygon points="28,7 35,0 42,7 35,14" fill="#B05020" opacity="0.85"/>
+        <circle cx="0"  cy="7" r="1.8" fill="#F0A060" opacity="0.8"/>
+        <circle cx="14" cy="7" r="1.8" fill="#F0A060" opacity="0.8"/>
+        <circle cx="28" cy="7" r="1.8" fill="#F0A060" opacity="0.8"/>
+        <circle cx="42" cy="7" r="1.8" fill="#F0A060" opacity="0.8"/>
+      </pattern>
+    </defs>
+    <rect width="800" height="14" fill="url(#bp)"/>
+  </svg>
+</header>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--morning-bd)"></div>Morning Routine</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--evening-bd)"></div>Evening Routine</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--english-bd)"></div>English Language</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--project-bd)"></div>Project</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--garden-bd)"></div>Garden</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--sport-bd)"></div>Sport</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--upskill-bd)"></div>Upskilling</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cooking-bd)"></div>Cooking</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--laundry-bd)"></div>Laundry</div>
+</div>
+
+<!-- LAYOUT: PALETTE + CALENDAR -->
+<div class="app-layout">
+
+  <!-- PALETTE -->
+  <aside class="palette" id="palette">
+    <div class="palette-label">Drag to schedule ↓</div>
+  </aside>
+
+  <!-- CALENDAR -->
+  <div class="cal-wrapper">
+    <div class="cal-grid" id="calGrid">
+      <!-- Time column -->
+      <div class="time-col" id="timeCol">
+        <div class="time-col-header"></div>
+      </div>
+      <!-- Day columns generated by JS -->
+    </div>
+  </div>
+
+</div>
+
+<!-- RECURRING REMINDERS -->
+<section class="recurring-panel">
+  <h2>Pengingat Berkala — Recurring Reminders</h2>
+  <div class="recurring-cards">
+    <div class="recurring-card">
+      <div class="recurring-freq">Every 2 weeks</div>
+      <div class="recurring-task">AC Filter Cleaning</div>
+    </div>
+    <div class="recurring-card">
+      <div class="recurring-freq">Every 2–4 weeks</div>
+      <div class="recurring-task">Batch Prep Cleaning Products</div>
+    </div>
+    <div class="recurring-card">
+      <div class="recurring-freq">Monthly</div>
+      <div class="recurring-task">Deep Washing Machine Clean</div>
+    </div>
+    <div class="recurring-card">
+      <div class="recurring-freq">Every 2–3 months</div>
+      <div class="recurring-task">Full AC Deep Clean</div>
+    </div>
+    <div class="recurring-card">
+      <div class="recurring-freq">Every 3 months</div>
+      <div class="recurring-task">Washing Machine Maintenance</div>
+    </div>
+  </div>
+</section>
+
+<p class="footer-hint">
+  Drag blocks from the left panel onto the calendar &nbsp;·&nbsp;
+  Click ✕ on a placed block to remove it &nbsp;·&nbsp;
+  Schedule saves automatically
+</p>
+
+<script>
+// ===========================
+// BLOCK DEFINITIONS
+// ===========================
+const BLOCKS = {
+  morning:    { name: 'Morning Routine', nameId: 'Rutinitas Pagi',       icon: '🌅', dur: 1, cls: 'b-morning',    hint: 'Coconut run + full clean' },
+  evening:    { name: 'Evening Routine', nameId: 'Rutinitas Sore',       icon: '🌇', dur: 1, cls: 'b-evening',    hint: 'Dishes, plants, tidy up' },
+  english:    { name: 'English',         nameId: 'Bahasa Inggris',       icon: '📖', dur: 1, cls: 'b-english',    hint: 'English lesson/practice' },
+  project:    { name: 'Project',         nameId: 'Proyek',               icon: '🕯️', dur: 1, cls: 'b-project',    hint: 'Candles, soap, juices' },
+  garden:     { name: 'Garden',          nameId: 'Kebun',                icon: '🌿', dur: 1, cls: 'b-garden',     hint: 'Outdoor plant care' },
+  sport:      { name: 'Sport',           nameId: 'Olahraga',             icon: '🏃', dur: 1, cls: 'b-sport',      hint: 'Exercise' },
+  upskilling: { name: 'Upskilling',      nameId: 'Belajar Keterampilan', icon: '✨', dur: 1, cls: 'b-upskilling', hint: 'Skill-building session' },
+  cooking:    { name: 'Cooking',         nameId: 'Memasak',              icon: '🍳', dur: 1, cls: 'b-cooking',    hint: 'Meal preparation' },
+  laundry:    { name: 'Laundry',         nameId: 'Mencuci Baju',         icon: '👕', dur: 1, cls: 'b-laundry',    hint: 'Wash & hang laundry' },
+};
+
+const DAYS = [
+  { id: 'sun', en: 'Sunday',    id_: 'Minggu',  sun: true  },
+  { id: 'mon', en: 'Monday',    id_: 'Senin',   sun: false },
+  { id: 'tue', en: 'Tuesday',   id_: 'Selasa',  sun: false },
+  { id: 'wed', en: 'Wednesday', id_: 'Rabu',    sun: false },
+  { id: 'thu', en: 'Thursday',  id_: 'Kamis',   sun: false },
+  { id: 'fri', en: 'Friday',    id_: 'Jumat',   sun: false },
+  { id: 'sat', en: 'Saturday',  id_: 'Sabtu',   sun: false },
+];
+
+const START_H  = 6;
+const END_H    = 20;
+const N_SLOTS  = (END_H - START_H) * 2;  // 26
+const SLOT_PX  = 32;
+const HOUR_PX  = 64;
+
+// ===========================
+// STATE
+// ===========================
+// placement: { id, blockType, day, slot }
+let placements = [];
+let drag = null; // { blockType, placementId|null }
+
+function uid() { return Math.random().toString(36).slice(2, 9); }
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('widiya-cal-v2');
+    if (s) placements = JSON.parse(s);
+  } catch(e) { placements = []; }
+}
+
+function saveState() {
+  try { localStorage.setItem('widiya-cal-v2', JSON.stringify(placements)); } catch(e) {}
+}
+
+// ===========================
+// HELPERS
+// ===========================
+function fmtDur(h) {
+  const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  if (hh && mm) return `${hh}h ${mm}m`;
+  if (hh) return `${hh}h`;
+  return `${mm}m`;
+}
+
+function slotToLabel(slot) {
+  const total = START_H * 60 + slot * 30;
+  const h = Math.floor(total / 60), m = total % 60;
+  return `${h}:${String(m).padStart(2,'0')}`;
+}
+
+function getSundayOfWeek() {
+  const d = new Date();
+  d.setDate(d.getDate() - d.getDay()); // getDay(): 0=Sun, so this always lands on Sunday
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+// ===========================
+// RENDER PALETTE
+// ===========================
+function renderPalette() {
+  const pal = document.getElementById('palette');
+  pal.innerHTML = '<div class="palette-label">Drag to schedule ↓</div>';
+
+  Object.entries(BLOCKS).forEach(([type, b]) => {
+    const el = document.createElement('div');
+    el.className = `block ${b.cls}`;
+    el.draggable = true;
+    el.dataset.blockType = type;
+    el.innerHTML = `<span class="block-icon">${b.icon}</span>
+<div class="block-name">${b.name}</div>
+<div class="block-dur">${fmtDur(b.dur)}</div>`;
+
+    el.addEventListener('dragstart', e => {
+      drag = { blockType: type, placementId: null };
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', type);
+      setTimeout(() => el.classList.remove('dragging'), 0);
+    });
+    el.addEventListener('dragend', () => { el.classList.remove('dragging'); });
+
+    // Touch
+    setupTouch(el, type, null);
+
+    pal.appendChild(el);
+  });
+}
+
+// ===========================
+// RENDER TIME COLUMN
+// ===========================
+function renderTimeCol() {
+  const col = document.getElementById('timeCol');
+  col.innerHTML = '<div class="time-col-header"></div>';
+  for (let h = START_H; h < END_H; h++) {
+    const lbl = document.createElement('div');
+    lbl.className = 'time-label';
+    lbl.textContent = `${h}:00`;
+    col.appendChild(lbl);
+  }
+}
+
+// ===========================
+// RENDER DAY COLUMNS
+// ===========================
+function renderDayCols() {
+  const grid = document.getElementById('calGrid');
+  grid.querySelectorAll('.day-col').forEach(el => el.remove());
+
+  const sunday = getSundayOfWeek();
+
+  DAYS.forEach((day, di) => {
+    const date = new Date(sunday);
+    date.setDate(sunday.getDate() + di);
+    const dateStr = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+    const col = document.createElement('div');
+    col.className = 'day-col' + (day.sun ? ' is-sunday' : '');
+    col.dataset.day = day.id;
+
+    const hdr = document.createElement('div');
+    hdr.className = 'day-header';
+    hdr.innerHTML = `<div class="day-name-id">${day.id_}</div>
+<div class="day-name-en">${day.en}</div>
+<div class="day-date">${dateStr}</div>`;
+    col.appendChild(hdr);
+
+    const zones = document.createElement('div');
+    zones.className = 'drop-zones';
+    zones.id = `zones-${day.id}`;
+
+    // Create 30-min drop zones
+    for (let s = 0; s < N_SLOTS; s++) {
+      const zone = document.createElement('div');
+      zone.className = 'drop-zone';
+      zone.dataset.day = day.id;
+      zone.dataset.slot = s;
+      zone.style.top = `${s * SLOT_PX}px`;
+      zone.addEventListener('dragover', onDragOver);
+      zone.addEventListener('dragleave', onDragLeave);
+      zone.addEventListener('drop', onDrop);
+      zones.appendChild(zone);
+    }
+
+    col.appendChild(zones);
+    grid.appendChild(col);
+  });
+}
+
+// ===========================
+// RENDER PLACED BLOCKS
+// ===========================
+function renderPlacements() {
+  document.querySelectorAll('.placed-block').forEach(el => el.remove());
+
+  placements.forEach(p => {
+    const b = BLOCKS[p.blockType];
+    if (!b) return;
+
+    const zones = document.getElementById(`zones-${p.day}`);
+    if (!zones) return;
+
+    const topPx    = p.slot * SLOT_PX;
+    const heightPx = b.dur * HOUR_PX;
+
+    const el = document.createElement('div');
+    el.className = `placed-block ${b.cls}`;
+    el.dataset.placementId = p.id;
+    el.dataset.blockType   = p.blockType;
+    el.draggable = true;
+    el.style.top    = `${topPx}px`;
+    el.style.height = `${heightPx}px`;
+
+    el.innerHTML = `<span class="block-icon" style="font-size:0.8rem;margin-bottom:1px">${b.icon}</span>
+<div class="block-name">${b.name}</div>
+<div class="block-dur">${slotToLabel(p.slot)} · ${fmtDur(b.dur)}</div>
+<button class="remove-btn" title="Remove">✕</button>`;
+
+    el.querySelector('.remove-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      removePlacement(p.id);
+    });
+
+    el.addEventListener('dragstart', e => {
+      e.stopPropagation();
+      drag = { blockType: p.blockType, placementId: p.id };
+      el.style.opacity = '0.35';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', p.blockType);
+      setTimeout(() => { if (el) el.style.opacity = ''; }, 0);
+    });
+
+    el.addEventListener('dragend', () => { el.style.opacity = ''; });
+
+    setupTouch(el, p.blockType, p.id);
+
+    zones.appendChild(el);
+  });
+}
+
+// ===========================
+// DRAG AND DROP HANDLERS
+// ===========================
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+  if (!drag) return;
+
+  const day  = e.currentTarget.dataset.day;
+  const slot = parseInt(e.currentTarget.dataset.slot, 10);
+
+  // Remove from old position if moving
+  if (drag.placementId) {
+    placements = placements.filter(p => p.id !== drag.placementId);
+  }
+
+  placements.push({ id: uid(), blockType: drag.blockType, day, slot });
+  drag = null;
+  saveState();
+  renderPlacements();
+}
+
+// Global dragend cleanup
+document.addEventListener('dragend', () => {
+  document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+});
+
+function removePlacement(id) {
+  placements = placements.filter(p => p.id !== id);
+  saveState();
+  renderPlacements();
+}
+
+function clearAll() {
+  if (!confirm('Remove all scheduled blocks from the calendar?')) return;
+  placements = [];
+  saveState();
+  renderPlacements();
+}
+
+// ===========================
+// TOUCH DRAG AND DROP
+// ===========================
+let touch = { clone: null, blockType: null, placementId: null };
+
+function setupTouch(el, blockType, placementId) {
+  el.addEventListener('touchstart', e => {
+    touch.blockType    = blockType;
+    touch.placementId  = placementId;
+
+    const rect = el.getBoundingClientRect();
+    const t    = e.touches[0];
+
+    touch.clone = el.cloneNode(true);
+    touch.clone.style.cssText = `
+      position:fixed; pointer-events:none; z-index:9999; opacity:0.88;
+      width:${rect.width}px; box-shadow:0 8px 28px rgba(0,0,0,0.22);
+      transform:scale(1.04); border-radius:7px;
+      left:${t.clientX - rect.width/2}px;
+      top:${t.clientY - 24}px;
+    `;
+    document.body.appendChild(touch.clone);
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!touch.clone) return;
+    const t = e.touches[0];
+    touch.clone.style.left = `${t.clientX - touch.clone.offsetWidth/2}px`;
+    touch.clone.style.top  = `${t.clientY - 24}px`;
+
+    document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+    touch.clone.style.display = 'none';
+    const below = document.elementFromPoint(t.clientX, t.clientY);
+    touch.clone.style.display = '';
+    if (below) {
+      const zone = below.closest('.drop-zone');
+      if (zone) zone.classList.add('drag-over');
+    }
+  }, { passive: false });
+
+  el.addEventListener('touchend', e => {
+    if (!touch.clone) return;
+    const t = e.changedTouches[0];
+    touch.clone.style.display = 'none';
+    const below = document.elementFromPoint(t.clientX, t.clientY);
+    touch.clone.remove();
+    touch.clone = null;
+    document.querySelectorAll('.drop-zone.drag-over').forEach(z => z.classList.remove('drag-over'));
+
+    if (below && touch.blockType) {
+      const zone = below.closest('.drop-zone');
+      if (zone) {
+        if (touch.placementId) placements = placements.filter(p => p.id !== touch.placementId);
+        placements.push({ id: uid(), blockType: touch.blockType, day: zone.dataset.day, slot: parseInt(zone.dataset.slot) });
+        saveState();
+        renderPlacements();
+      }
+    }
+    touch.blockType = touch.placementId = null;
+  });
+}
+
+// ===========================
+// WEEK LABEL
+// ===========================
+function renderWeekLabel() {
+  const sun = getSundayOfWeek();
+  const sat = new Date(sun); sat.setDate(sun.getDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+  document.getElementById('weekRange').textContent =
+    `${fmt(sun)} – ${fmt(sat)}, ${sat.getFullYear()}`;
+}
+
+// ===========================
+// SHARE / LOAD FROM URL
+// ===========================
+function shareSchedule() {
+  if (placements.length === 0) {
+    alert('Nothing scheduled yet — drag some blocks onto the calendar first!');
+    return;
+  }
+  try {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(placements))));
+    const url = location.href.split('#')[0] + '#s=' + encoded;
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('shareBtn');
+      const original = btn.textContent;
+      btn.textContent = '✅ Link copied!';
+      setTimeout(() => btn.textContent = original, 2500);
+    }).catch(() => {
+      // Fallback: show in prompt so user can copy manually
+      prompt('Copy this link and send to Widiya via WhatsApp:', url);
+    });
+  } catch(e) {
+    alert('Could not generate share link.');
+  }
+}
+
+function loadFromUrl() {
+  const hash = location.hash;
+  if (!hash.startsWith('#s=')) return false;
+  try {
+    const encoded = hash.slice(3);
+    const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    if (Array.isArray(data)) {
+      placements = data;
+      // Show a subtle "view" banner
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#4A2810;color:#F2E8D9;text-align:center;padding:7px;font-size:0.78rem;letter-spacing:0.05em;';
+      banner.innerHTML = '📅 Schedule shared by Harold &nbsp;·&nbsp; <a href="' + location.href.split('#')[0] + '" style="color:#F0A060;text-decoration:none;">Open your own copy →</a>';
+      document.body.prepend(banner);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ===========================
+// INIT
+// ===========================
+const fromUrl = loadFromUrl(); // try shared URL first
+if (!fromUrl) loadState();     // else load localStorage
+renderPalette();
+renderTimeCol();
+renderDayCols();
+renderPlacements();
+renderWeekLabel();
+</script>
+</body>
+</html>

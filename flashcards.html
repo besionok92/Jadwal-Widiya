@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards — Widiya</title>
+<script src="words-data.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f6fc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP BAR */
+.topbar {
+  background: #1a3a5c;
+  color: white;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.topbar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+.word-count {
+  font-size: 0.78rem;
+  background: rgba(255,255,255,0.12);
+  padding: 0.3rem 0.8rem;
+  border-radius: 100px;
+  font-weight: 500;
+}
+.dir-toggle {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.4rem 0.9rem;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s;
+}
+.dir-toggle:hover { background: rgba(255,255,255,0.2); }
+
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  gap: 1.5rem;
+}
+
+/* PROGRESS */
+.progress-area {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #6b7f94;
+  font-weight: 500;
+}
+.progress-bar {
+  height: 5px;
+  background: #d0e8f7;
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1a6fa8, #2a9fd6);
+  border-radius: 100px;
+  transition: width 0.3s ease;
+}
+
+/* CARD SCENE */
+.card-scene {
+  width: 100%;
+  max-width: 480px;
+  height: 260px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-inner.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 2rem;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 8px 32px rgba(26,58,92,0.13);
+  text-align: center;
+}
+.card-front {
+  background: white;
+}
+.card-back {
+  background: linear-gradient(135deg, #1a3a5c, #1a6fa8);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+.card-hint {
+  font-size: 0.72rem;
+  color: #9bb0c4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.card-back .card-hint { color: rgba(255,255,255,0.55); }
+
+.card-word {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: #1a3a5c;
+  line-height: 1.2;
+}
+.card-back .card-word { color: white; }
+
+.card-type-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.7rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.badge-verb { background: #e8f2fc; color: #1a6fa8; }
+.badge-noun { background: #f3ebfc; color: #7b3fa8; }
+.badge-adj  { background: #e8f5ee; color: #2a7a4b; }
+.badge-phrase { background: #fef6e8; color: #c9973a; }
+.card-back .card-type-badge { background: rgba(255,255,255,0.2); color: white; }
+
+.card-tap-hint {
+  font-size: 0.72rem;
+  color: #b0c4d8;
+  margin-top: 0.3rem;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 480px;
+}
+.btn {
+  padding: 0.7rem 1.6rem;
+  border-radius: 100px;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: #1a6fa8;
+  color: white;
+  flex: 1;
+}
+.btn-primary:hover { background: #1a5a8a; }
+.btn-secondary {
+  background: white;
+  color: #1a3a5c;
+  border: 2px solid #c5e3f7;
+}
+.btn-secondary:hover { border-color: #1a6fa8; }
+.btn:disabled { opacity: 0.35; cursor: default; }
+
+/* EMPTY STATE */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem;
+  max-width: 380px;
+}
+.empty-icon { font-size: 4rem; opacity: 0.35; }
+.empty-state h2 { font-size: 1.3rem; color: #1a3a5c; font-weight: 700; }
+.empty-state p { font-size: 0.95rem; color: #6b7f94; line-height: 1.6; }
+.empty-state .id-hint {
+  font-style: italic;
+  font-size: 0.88rem;
+  color: #9bb0c4;
+  background: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  border: 1px solid #d0e8f7;
+}
+
+/* DONE STATE */
+.done-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem;
+  max-width: 380px;
+}
+.done-icon { font-size: 4rem; }
+.done-state h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1a3a5c; }
+.done-state p { font-size: 0.95rem; color: #6b7f94; line-height: 1.6; }
+
+/* LESSON CHIPS */
+.lesson-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  max-width: 480px;
+  width: 100%;
+}
+.lesson-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  background: white;
+  border: 1px solid #c5e3f7;
+  color: #1a6fa8;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🃏 Flashcards</h1>
+  <span class="word-count" id="word-count">Loading…</span>
+  <button class="dir-toggle" id="dir-toggle" onclick="toggleDirection()">🔄 EN → ID</button>
+</div>
+
+<div class="main" id="main-area">
+  <!-- Dynamically rendered -->
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+var cards = [];        // shuffled flat word array
+var index = 0;
+var flipped = false;
+var direction = 'en-id'; // 'en-id' or 'id-en'
+
+// ── INIT ───────────────────────────────────────────────
+function init() {
+  var completedDays = [];
+  for (var d = 1; d <= 10; d++) {
+    if (localStorage.getItem('widiya-lesson-' + d + '-complete') === 'true') {
+      completedDays.push(d);
+    }
+  }
+
+  if (completedDays.length === 0) {
+    renderEmpty();
+    document.getElementById('word-count').textContent = '0 kata';
+    return;
+  }
+
+  // Collect words from completed days
+  var pool = [];
+  completedDays.forEach(function(d) {
+    var dayData = window.WIDIYA_WORDS[d - 1];
+    dayData.words.forEach(function(w) {
+      pool.push({ en: w.en, id: w.id, type: w.type, day: d, theme: dayData.theme });
+    });
+  });
+
+  // Fisher-Yates shuffle
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+
+  cards = pool;
+  index = 0;
+  flipped = false;
+
+  var dayLabels = completedDays.map(function(d) { return 'Day ' + d; });
+  document.getElementById('word-count').textContent =
+    cards.length + ' kata · ' + completedDays.length + ' pelajaran';
+
+  renderCard();
+  renderChips(dayLabels);
+}
+
+// ── DIRECTION ─────────────────────────────────────────
+function toggleDirection() {
+  direction = direction === 'en-id' ? 'id-en' : 'en-id';
+  document.getElementById('dir-toggle').textContent =
+    direction === 'en-id' ? '🔄 EN → ID' : '🔄 ID → EN';
+  flipped = false;
+  if (cards.length > 0) renderCard();
+}
+
+// ── RENDER CARD ────────────────────────────────────────
+function renderCard() {
+  var area = document.getElementById('main-area');
+  var card = cards[index];
+  var frontWord = direction === 'en-id' ? card.en : card.id;
+  var backWord  = direction === 'en-id' ? card.id : card.en;
+  var frontLang = direction === 'en-id' ? 'English' : 'Bahasa Indonesia';
+  var backLang  = direction === 'en-id' ? 'Bahasa Indonesia' : 'English';
+  var badgeClass = 'badge-' + card.type;
+  var typeLabel = card.type === 'adj' ? 'Adjective' :
+                  card.type.charAt(0).toUpperCase() + card.type.slice(1);
+
+  var pct = Math.round(((index + 1) / cards.length) * 100);
+
+  area.innerHTML =
+    '<div class="progress-area">' +
+      '<div class="progress-label"><span>' + (index + 1) + ' / ' + cards.length + '</span><span>' + pct + '%</span></div>' +
+      '<div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:' + pct + '%"></div></div>' +
+    '</div>' +
+
+    '<div class="card-scene" onclick="flipCard()">' +
+      '<div class="card-inner" id="card-inner">' +
+        '<div class="card-face card-front">' +
+          '<span class="card-hint">' + frontLang + '</span>' +
+          '<div class="card-word">' + frontWord + '</div>' +
+          '<span class="card-tap-hint">Tap to reveal</span>' +
+        '</div>' +
+        '<div class="card-face card-back">' +
+          '<span class="card-hint">' + backLang + '</span>' +
+          '<div class="card-word">' + backWord + '</div>' +
+          '<span class="card-type-badge ' + badgeClass + '">' + typeLabel + '</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="controls">' +
+      '<button class="btn btn-secondary" onclick="prevCard()" ' + (index === 0 ? 'disabled' : '') + '>← Back</button>' +
+      '<button class="btn btn-primary" onclick="nextCard()">' + (index === cards.length - 1 ? 'Finish ✓' : 'Next →') + '</button>' +
+    '</div>';
+
+  // Restore flip state
+  if (flipped) {
+    document.getElementById('card-inner').classList.add('flipped');
+  }
+}
+
+function flipCard() {
+  flipped = !flipped;
+  var inner = document.getElementById('card-inner');
+  if (inner) inner.classList.toggle('flipped', flipped);
+}
+
+function nextCard() {
+  if (index < cards.length - 1) {
+    index++;
+    flipped = false;
+    renderCard();
+  } else {
+    renderDone();
+  }
+}
+
+function prevCard() {
+  if (index > 0) {
+    index--;
+    flipped = false;
+    renderCard();
+  }
+}
+
+// ── RENDER CHIPS ──────────────────────────────────────
+function renderChips(labels) {
+  var existing = document.querySelector('.lesson-chips');
+  if (existing) existing.remove();
+  var area = document.getElementById('main-area');
+  var div = document.createElement('div');
+  div.className = 'lesson-chips';
+  labels.forEach(function(l) {
+    var chip = document.createElement('span');
+    chip.className = 'lesson-chip';
+    chip.textContent = l;
+    div.appendChild(chip);
+  });
+  area.appendChild(div);
+}
+
+// ── EMPTY STATE ───────────────────────────────────────
+function renderEmpty() {
+  document.getElementById('main-area').innerHTML =
+    '<div class="empty-state">' +
+      '<div class="empty-icon">🃏</div>' +
+      '<h2>No lessons completed yet</h2>' +
+      '<p>Go to the <strong>English</strong> tab, study a lesson, then check <em>"Tandai Selesai"</em> at the top of the day to unlock its words here.</p>' +
+      '<div class="id-hint">Selesaikan minimal satu pelajaran dulu untuk membuka flashcard! Centang "Selesai" di halaman English.</div>' +
+    '</div>';
+}
+
+// ── DONE STATE ────────────────────────────────────────
+function renderDone() {
+  document.getElementById('main-area').innerHTML =
+    '<div class="done-state">' +
+      '<div class="done-icon">🌟</div>' +
+      '<h2>Selesai!</h2>' +
+      '<p>You went through all <strong>' + cards.length + '</strong> cards. Amazing work!</p>' +
+      '<p style="font-style:italic;color:#9bb0c4">Kerja bagus! Terus semangat belajar.</p>' +
+      '<button class="btn btn-primary" style="margin-top:0.5rem" onclick="init()">🔀 Shuffle & Restart</button>' +
+    '</div>';
+}
+
+// ── START ──────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

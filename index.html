@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Widiya">
+  <meta name="theme-color" content="#1a2f4a">
+  <link rel="manifest" href="manifest.json">
+  <title>Widiya</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --shell-bg: #1a2f4a;
+      --shell-bg2: #142340;
+      --shell-active: #2a6fa8;
+      --shell-text: rgba(255,255,255,0.65);
+      --shell-text-active: #ffffff;
+      --shell-border: rgba(255,255,255,0.08);
+      --sidebar-w: 200px;
+      --tab-h: 68px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--shell-bg);
+      overflow: hidden;
+    }
+
+    /* LAYOUT */
+    .app {
+      display: flex;
+      height: 100dvh;
+      height: 100vh;
+    }
+
+    /* SIDEBAR (desktop) */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--shell-bg2);
+      border-right: 1px solid var(--shell-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .sidebar-brand {
+      padding: calc(1.6rem + var(--safe-top)) 1.4rem 1.2rem;
+      border-bottom: 1px solid var(--shell-border);
+    }
+    .sidebar-brand .app-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .sidebar-brand .app-sub {
+      font-size: 0.72rem;
+      color: var(--shell-text);
+      margin-top: 0.2rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0.6rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--shell-text);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .nav-item.active { background: var(--shell-active); color: #fff; }
+
+    .nav-item .icon {
+      font-size: 1.2rem;
+      width: 1.5rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nav-item .label { flex: 1; }
+    .nav-item .badge {
+      font-size: 0.6rem;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      padding: 0.15rem 0.45rem;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.4rem calc(1rem + var(--safe-bottom));
+      border-top: 1px solid var(--shell-border);
+      font-size: 0.72rem;
+      color: var(--shell-text);
+      opacity: 0.6;
+    }
+
+    /* CONTENT AREA */
+    .content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .frame-pane {
+      position: absolute;
+      top: var(--safe-top);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+    }
+    .frame-pane.active { display: block; }
+
+    .frame-pane iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* PLACEHOLDER */
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f0f6fc;
+      color: #6b7f94;
+      gap: 1rem;
+      padding: 2rem;
+      text-align: center;
+    }
+    .placeholder .ph-icon { font-size: 4rem; opacity: 0.4; }
+    .placeholder h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a3a5c;
+      margin: 0;
+    }
+    .placeholder p {
+      font-size: 0.95rem;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+    .placeholder .coming-badge {
+      background: #1a6fa8;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 1rem;
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* BOTTOM TAB BAR (mobile) */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      height: calc(var(--tab-h) + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: var(--shell-bg2);
+      border-top: 1px solid var(--shell-border);
+      z-index: 100;
+    }
+    .tab-bar-inner {
+      display: flex;
+      height: var(--tab-h);
+      width: 100%;
+    }
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      color: var(--shell-text);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: transparent;
+      border: none;
+      transition: color 0.15s;
+      padding: 0 2px;
+      min-width: 0;
+    }
+    .tab-btn span:not(.tab-icon) {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .tab-btn .tab-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+      transition: transform 0.15s;
+    }
+    .tab-btn.active { color: #5bbfea; }
+    .tab-btn.active .tab-icon { transform: scale(1.1); }
+
+    .reload-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      padding: 0 0.5rem;
+      background: transparent;
+      border: none;
+      border-left: 1px solid var(--shell-border);
+      color: var(--shell-text);
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .reload-btn:active { color: #fff; }
+    .reload-btn .reload-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+    @media (max-width: 430px) {
+      .tab-btn {
+        font-size: 0.52rem;
+        letter-spacing: 0;
+      }
+    }
+
+    /* MOBILE */
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .tab-bar { display: flex; }
+      .content {
+        padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR (desktop) -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="app-name">Widiya</div>
+      <div class="app-sub">Household App</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-section="schedule" onclick="switchTo('schedule')">
+        <span class="icon">📅</span>
+        <span class="label">Schedule</span>
+      </button>
+      <button class="nav-item" data-section="english" onclick="switchTo('english')">
+        <span class="icon">📖</span>
+        <span class="label">English</span>
+      </button>
+      <button class="nav-item" data-section="flashcards" onclick="switchTo('flashcards')">
+        <span class="icon">🃏</span>
+        <span class="label">Flashcards</span>
+      </button>
+      <button class="nav-item" data-section="recipes" onclick="switchTo('recipes')">
+        <span class="icon">🍳</span>
+        <span class="label">Recipes</span>
+      </button>
+      <button class="nav-item" data-section="checklist" onclick="switchTo('checklist')">
+        <span class="icon">✅</span>
+        <span class="label">Checklist</span>
+      </button>
+      <button class="nav-item" data-section="projects" onclick="switchTo('projects')">
+        <span class="icon">🗂️</span>
+        <span class="label">Projects</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      Widiya &nbsp;·&nbsp; 2026
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="frame-pane active" id="pane-schedule">
+      <iframe src="widiya-weekly-calendar.html" title="Schedule" loading="eager"></iframe>
+    </div>
+
+    <div class="frame-pane" id="pane-english">
+      <iframe src="english_lessons.html" title="English Lessons" loading="lazy"></iframe>
+    </div>
+
+    <div class="frame-pane" id="pane-flashcards">
+      <iframe src="flashcards.html" title="Flashcards" loading="lazy"></iframe>
+    </div>
+
+    <div class="frame-pane" id="pane-recipes">
+      <iframe src="recipes.html" title="Recipes" loading="lazy"></iframe>
+    </div>
+
+    <div class="frame-pane" id="pane-checklist">
+      <iframe src="checklist.html" title="Checklist" loading="lazy"></iframe>
+    </div>
+
+    <div class="frame-pane" id="pane-projects">
+      <iframe src="projects.html" title="Projects" loading="lazy"></iframe>
+    </div>
+
+  </main>
+
+</div>
+
+<!-- BOTTOM TAB BAR (mobile) -->
+<div class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tab-btn active" data-section="schedule" onclick="switchTo('schedule')">
+      <span class="tab-icon">📅</span>
+      <span>Plan</span>
+    </button>
+    <button class="tab-btn" data-section="english" onclick="switchTo('english')">
+      <span class="tab-icon">📖</span>
+      <span>English</span>
+    </button>
+    <button class="tab-btn" data-section="flashcards" onclick="switchTo('flashcards')">
+      <span class="tab-icon">🃏</span>
+      <span>Cards</span>
+    </button>
+    <button class="tab-btn" data-section="recipes" onclick="switchTo('recipes')">
+      <span class="tab-icon">🍳</span>
+      <span>Recipes</span>
+    </button>
+    <button class="tab-btn" data-section="checklist" onclick="switchTo('checklist')">
+      <span class="tab-icon">✅</span>
+      <span>Tasks</span>
+    </button>
+    <button class="tab-btn" data-section="projects" onclick="switchTo('projects')">
+      <span class="tab-icon">🗂️</span>
+      <span>Work</span>
+    </button>
+    <button class="reload-btn" onclick="location.reload(true)" title="Refresh">
+      <span class="reload-icon">↺</span>
+      <span>Reload</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  function switchTo(section) {
+    document.querySelectorAll('.frame-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('pane-' + section).classList.add('active');
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.section === section);
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.section === section);
+    });
+
+    localStorage.setItem('widiya-section', section);
+  }
+
+  const last = localStorage.getItem('widiya-section');
+  if (last) switchTo(last);
+</script>
+
+</body>
+</html>

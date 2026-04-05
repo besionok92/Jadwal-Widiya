@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>English Lessons — 10 Days</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --navy: #1a3a5c;
+  --cerulean: #1a6fa8;
+  --sky: #e8f4fd;
+  --skymed: #c5e3f7;
+  --white: #ffffff;
+  --cream: #fdf8f0;
+  --warm: #f5ede0;
+  --gold: #c9973a;
+  --soft-gray: #f0f4f8;
+  --text: #2c3e50;
+  --muted: #6b7f94;
+  --green: #2a7a4b;
+  --green-light: #e8f5ee;
+  --verb: #1a6fa8;
+  --noun: #7b3fa8;
+  --adj: #2a7a4b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f6fc;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* NAV */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--navy);
+  padding: 0 2rem;
+  padding-top: env(safe-area-inset-top, 0px);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-shadow: 0 2px 12px rgba(26,58,92,0.25);
+}
+nav::-webkit-scrollbar { display: none; }
+nav .nav-brand {
+  font-family: 'Playfair Display', serif;
+  color: #fff;
+  font-size: 1rem;
+  white-space: nowrap;
+  margin-right: 1.5rem;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+nav a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 1rem 0.7rem;
+  white-space: nowrap;
+  transition: color 0.2s, border-bottom 0.2s;
+  border-bottom: 2px solid transparent;
+  letter-spacing: 0.04em;
+}
+nav a:hover { color: #fff; border-bottom-color: #5bbfea; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--cerulean) 60%, #2a9fd6 100%);
+  color: white;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+.hero p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  opacity: 0.88;
+  max-width: 580px;
+  margin: 0 auto 2rem;
+  font-weight: 300;
+}
+.hero .badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+.hero .badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 0.35rem 1rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+}
+
+/* DAY SECTION */
+.day-section {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.day-header {
+  margin-bottom: 2.5rem;
+}
+.day-number {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  font-weight: 900;
+  color: var(--cerulean);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.day-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 600;
+  color: var(--navy);
+  margin-top: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.day-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+  font-weight: 400;
+}
+.day-divider {
+  height: 3px;
+  background: linear-gradient(90deg, var(--cerulean), var(--skymed), transparent);
+  border-radius: 2px;
+  margin-top: 1.2rem;
+}
+
+/* VOCAB GRID */
+.vocab-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--navy);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+.word-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--skymed);
+  box-shadow: 0 2px 8px rgba(26,111,168,0.07);
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.word-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,111,168,0.14);
+}
+.word-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.word-card.verb::before { background: var(--verb); }
+.word-card.noun::before { background: var(--noun); }
+.word-card.adj::before { background: var(--adj); }
+.word-card.phrase::before { background: var(--gold); }
+
+.word-en {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+}
+.word-id {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.15rem;
+}
+.word-type {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.word-card.verb .word-type { background: #e8f2fc; color: var(--verb); }
+.word-card.noun .word-type { background: #f3ebfc; color: var(--noun); }
+.word-card.adj .word-type { background: var(--green-light); color: var(--green); }
+.word-card.phrase .word-type { background: #fef6e8; color: var(--gold); }
+
+/* SENTENCES */
+.sentences-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--navy);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sentence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+}
+.sentence-item {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem 1.3rem;
+  border-left: 4px solid var(--cerulean);
+  box-shadow: 0 1px 4px rgba(26,111,168,0.07);
+}
+.sentence-en {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.6;
+}
+.sentence-en .highlight { color: var(--cerulean); font-weight: 700; }
+.sentence-en .gloss {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-style: italic;
+  font-weight: 400;
+}
+.sentence-id {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  font-style: italic;
+}
+
+/* EXERCISE BOX */
+.exercise-box {
+  background: var(--cream);
+  border: 2px dashed #d9c6a8;
+  border-radius: 16px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 1rem;
+}
+.exercise-box .ex-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--gold);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.exercise-box p {
+  font-size: 0.97rem;
+  color: #5a4a35;
+  line-height: 1.75;
+  margin-bottom: 0.5rem;
+}
+.exercise-box .ex-tasks {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.8rem;
+}
+.exercise-box .ex-tasks li {
+  padding: 0.4rem 0 0.4rem 1.8rem;
+  position: relative;
+  color: #5a4a35;
+  font-size: 0.95rem;
+}
+.exercise-box .ex-tasks li::before {
+  content: '🎙️';
+  position: absolute;
+  left: 0;
+  font-size: 0.9rem;
+}
+
+/* SECTION DIVIDER */
+.section-break {
+  text-align: center;
+  color: var(--skymed);
+  font-size: 1.8rem;
+  margin: 1rem 0 2rem;
+  letter-spacing: 0.3em;
+}
+
+/* CARD: day container */
+.day-card {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem 2.5rem 2rem;
+  box-shadow: 0 4px 24px rgba(26,58,92,0.09);
+  margin-bottom: 3rem;
+}
+
+/* LEGEND */
+.legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+@media (max-width: 600px) {
+  .day-card { padding: 1.5rem 1.2rem; }
+  .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+/* COMPLETE TOGGLE */
+.complete-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  padding: 0.5rem 1.1rem 0.5rem 0.8rem;
+  border-radius: 100px;
+  border: 2px solid #c5e3f7;
+  background: white;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7f94;
+  transition: all 0.2s;
+  user-select: none;
+}
+.complete-toggle:hover { border-color: #2a7a4b; color: #2a7a4b; background: #f0faf4; }
+.complete-toggle.done { border-color: #2a7a4b; background: #e8f5ee; color: #2a7a4b; }
+.complete-toggle .check-icon { font-size: 1rem; }
+
+/* ── PAGINATED VIEW ────────────────────────────────────────── */
+.hero { display: none; }
+footer { display: none; }
+.day-section { display: none; }
+.day-section.active { display: block; }
+nav a.active { color: #fff; border-bottom-color: #5bbfea; }
+.day-nav-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--skymed);
+}
+.day-nav-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--cerulean);
+  background: white;
+  border: 2px solid var(--skymed);
+  border-radius: 100px;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.day-nav-btn:hover { background: var(--sky); border-color: var(--cerulean); }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">English Lessons</span>
+  <a href="#day1">Day 1</a>
+  <a href="#day2">Day 2</a>
+  <a href="#day3">Day 3</a>
+  <a href="#day4">Day 4</a>
+  <a href="#day5">Day 5</a>
+  <a href="#day6">Day 6</a>
+  <a href="#day7">Day 7</a>
+  <a href="#day8">Day 8</a>
+  <a href="#day9">Day 9</a>
+  <a href="#day10">Day 10</a>
+</nav>
+
+<div class="hero">
+  <h1>Your English Journey</h1>
+  <p>Ten beautiful days of learning — at your own pace, in your own time. You can do this. ✨</p>
+  <div class="badges">
+    <span class="badge">👋 Greetings</span>
+    <span class="badge">🧹 Cleaning</span>
+    <span class="badge">👨‍👩‍👧 Family</span>
+    <span class="badge">🍳 Cooking</span>
+    <span class="badge">🛒 Shopping</span>
+    <span class="badge">🌿 Gardening</span>
+  </div>
+</div>
+
+<!-- ==================== DAY 1 ==================== -->
+<div class="day-section" id="day1">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day One</div>
+    <div class="day-subtitle">Greetings &amp; Introductions</div>
+    <div class="day-desc">Cara menyapa orang dan memperkenalkan diri — How to greet people and introduce yourself</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day1" onclick="toggleComplete(1)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--verb)"></div> Verb (kata kerja)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--noun)"></div> Noun (kata benda)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--adj)"></div> Adjective (kata sifat)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Phrase (frasa)</div>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini &nbsp;<span style="font-size:0.85rem;color:var(--muted);font-family:Inter,sans-serif;font-weight:400">Today's Words</span></h2>
+    <div class="vocab-grid">
+      <div class="word-card phrase"><div class="word-en">Hello</div><div class="word-id">Halo / Hai</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Good morning</div><div class="word-id">Selamat pagi</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Good afternoon</div><div class="word-id">Selamat siang/sore</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Good evening</div><div class="word-id">Selamat malam</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Goodbye</div><div class="word-id">Sampai jumpa / Selamat tinggal</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Please</div><div class="word-id">Tolong / Silakan</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Thank you</div><div class="word-id">Terima kasih</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Sorry</div><div class="word-id">Maaf</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">Yes</div><div class="word-id">Ya / Iya</div><span class="word-type">Phrase</span></div>
+      <div class="word-card phrase"><div class="word-en">No</div><div class="word-id">Tidak / Bukan</div><span class="word-type">Phrase</span></div>
+      <div class="word-card verb"><div class="word-en">Meet</div><div class="word-id">Bertemu</div><span class="word-type">Verb</span></div>
+      <div class="word-card noun"><div class="word-en">Name</div><div class="word-id">Nama</div><span class="word-type">Noun</span></div>
+      <div class="word-card adj"><div class="word-en">Nice</div><div class="word-id">Menyenangkan / Baik</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Fine</div><div class="word-id">Baik-baik saja</div><span class="word-type">Adjective</span></div>
+      <div class="word-card phrase"><div class="word-en">Welcome</div><div class="word-id">Selamat datang</div><span class="word-type">Phrase</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat &nbsp;<span style="font-size:0.85rem;color:var(--muted);font-family:Inter,sans-serif;font-weight:400">Example Sentences</span></h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Hello</span>! My <span class="highlight">name</span> is Sarah. <span class="gloss">(Halo! Nama saya Sarah.)</span></div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Good morning</span>! How are you <span class="gloss">(Apa kabar?)</span> today <span class="gloss">(hari ini)</span>?</div>
+        <div class="sentence-id">Selamat pagi! Apa kabar hari ini?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I am <span class="highlight">fine</span>, thank you <span class="gloss">(terima kasih)</span>! And you <span class="gloss">(dan kamu)</span>?</div>
+        <div class="sentence-id">Saya baik-baik saja, terima kasih! Dan kamu?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">It is <span class="highlight">nice</span> to <span class="highlight">meet</span> you. I live <span class="gloss">(tinggal)</span> here <span class="gloss">(di sini)</span>.</div>
+        <div class="sentence-id">Senang bertemu dengan Anda. Saya tinggal di sini.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Good afternoon</span>! <span class="highlight">Please</span> come in <span class="gloss">(masuk)</span>. You are <span class="highlight">welcome</span> here.</div>
+        <div class="sentence-id">Selamat siang! Tolong masuk. Anda sangat diterima di sini.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Sorry</span>, I don't understand <span class="gloss">(tidak mengerti)</span>. Can you <span class="gloss">(bisakah kamu)</span> say it again <span class="gloss">(katakan lagi)</span>?</div>
+        <div class="sentence-id">Maaf, saya tidak mengerti. Bisakah kamu katakan lagi?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Good evening</span>! Are you ready <span class="gloss">(siap)</span> for dinner <span class="gloss">(makan malam)</span>?</div>
+        <div class="sentence-id">Selamat malam! Apakah kamu siap untuk makan malam?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Yes</span>, I am ready. <span class="highlight">No</span>, I need <span class="gloss">(butuh)</span> a few more minutes <span class="gloss">(beberapa menit lagi)</span>.</div>
+        <div class="sentence-id">Ya, saya siap. Tidak, saya butuh beberapa menit lagi.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Goodbye</span>! See you <span class="gloss">(sampai jumpa)</span> tomorrow <span class="gloss">(besok)</span>!</div>
+        <div class="sentence-id">Sampai jumpa! Sampai jumpa besok!</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Thank you</span> very much <span class="gloss">(banyak)</span> for your help <span class="gloss">(bantuan kamu)</span>. You are so kind <span class="gloss">(baik sekali)</span>!</div>
+        <div class="sentence-id">Terima kasih banyak atas bantuan kamu. Kamu baik sekali!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Halo! Selamat belajar hari ini. Untuk latihan, rekam pesan suara dan kirimkan kepada saya.</p>
+    <p>Dalam rekaman kamu, tolong lakukan hal-hal berikut ini:</p>
+    <ul class="ex-tasks">
+      <li>Sapa saya dengan kata yang benar sesuai waktu hari ini (pagi, siang, sore, atau malam)</li>
+      <li>Perkenalkan diri kamu — katakan nama kamu dalam bahasa Inggris: <em>"My name is ___"</em></li>
+      <li>Katakan bagaimana perasaan kamu hari ini: <em>"I am fine"</em> atau <em>"I am happy"</em></li>
+      <li>Ucapkan terima kasih di akhir rekaman dan katakan sampai jumpa</li>
+    </ul>
+    <p style="margin-top:1rem;font-size:0.88rem;opacity:0.7">Tidak perlu sempurna — yang penting dicoba! 💪</p>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 2 ==================== -->
+<div class="day-section" id="day2">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Two</div>
+    <div class="day-subtitle">Cleaning — Tools &amp; Supplies</div>
+    <div class="day-desc">Peralatan kebersihan — All the tools you use every day</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day2" onclick="toggleComplete(2)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card noun"><div class="word-en">Mop</div><div class="word-id">Alat pel</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Broom</div><div class="word-id">Sapu</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Bucket</div><div class="word-id">Ember</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Cloth</div><div class="word-id">Kain lap</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Sponge</div><div class="word-id">Spons</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Vacuum</div><div class="word-id">Penyedot debu</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Spray</div><div class="word-id">Semprotan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Brush</div><div class="word-id">Sikat</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Glove</div><div class="word-id">Sarung tangan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Dustpan</div><div class="word-id">Pengki / Sekop sampah</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Soap</div><div class="word-id">Sabun</div><span class="word-type">Noun</span></div>
+      <div class="word-card verb"><div class="word-en">Sweep</div><div class="word-id">Menyapu</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Wash</div><div class="word-id">Mencuci</div><span class="word-type">Verb</span></div>
+      <div class="word-card adj"><div class="word-en">Dirty</div><div class="word-id">Kotor</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Clean</div><div class="word-id">Bersih</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">I use <span class="gloss">(menggunakan)</span> the <span class="highlight">mop</span> to clean <span class="gloss">(membersihkan)</span> the floor <span class="gloss">(lantai)</span>.</div>
+        <div class="sentence-id">Saya menggunakan alat pel untuk membersihkan lantai.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Sweep</span> the floor with the <span class="highlight">broom</span> first <span class="gloss">(dulu)</span>, then <span class="gloss">(kemudian)</span> use the <span class="highlight">dustpan</span>.</div>
+        <div class="sentence-id">Sapu lantai dengan sapu dulu, kemudian gunakan pengki.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Fill <span class="gloss">(isi)</span> the <span class="highlight">bucket</span> with water <span class="gloss">(air)</span> and add <span class="gloss">(tambahkan)</span> some <span class="highlight">soap</span>.</div>
+        <div class="sentence-id">Isi ember dengan air dan tambahkan sabun.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Please wear <span class="gloss">(kenakan)</span> your <span class="highlight">gloves</span> before <span class="gloss">(sebelum)</span> you use the <span class="highlight">spray</span>.</div>
+        <div class="sentence-id">Tolong kenakan sarung tangan sebelum menggunakan semprotan.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The bathroom <span class="gloss">(kamar mandi)</span> is <span class="highlight">dirty</span>. Use the <span class="highlight">brush</span> and <span class="highlight">soap</span> to <span class="highlight">wash</span> it.</div>
+        <div class="sentence-id">Kamar mandinya kotor. Gunakan sikat dan sabun untuk mencucinya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">sponge</span> is wet <span class="gloss">(basah)</span>. Leave it <span class="gloss">(biarkan)</span> outside <span class="gloss">(di luar)</span> to dry <span class="gloss">(mengering)</span>.</div>
+        <div class="sentence-id">Spons itu basah. Biarkan di luar untuk mengering.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The carpet <span class="gloss">(karpet)</span> is <span class="highlight">dirty</span>. Use the <span class="highlight">vacuum</span> to clean it.</div>
+        <div class="sentence-id">Karpetnya kotor. Gunakan penyedot debu untuk membersihkannya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Wipe <span class="gloss">(lap)</span> the table with a damp <span class="gloss">(lembap)</span> <span class="highlight">cloth</span>.</div>
+        <div class="sentence-id">Lap meja dengan kain lap yang lembap.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The kitchen is now <span class="highlight">clean</span>. Good job <span class="gloss">(kerja bagus)</span>!</div>
+        <div class="sentence-id">Dapurnya sekarang bersih. Kerja bagus!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara dan kirimkan kepada saya. Dalam rekaman, ceritakan tentang pekerjaan membersihkan rumah hari ini.</p>
+    <ul class="ex-tasks">
+      <li>Sebutkan 3 peralatan yang kamu gunakan hari ini dalam bahasa Inggris (misalnya: "I use the mop, the broom, and the cloth.")</li>
+      <li>Ceritakan satu ruangan yang kamu bersihkan: apakah ruangan itu kotor atau bersih? Gunakan kata <em>dirty</em> atau <em>clean</em>.</li>
+      <li>Buat satu kalimat lengkap tentang apa yang kamu lakukan, contoh: "I sweep the floor with the broom."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 3 ==================== -->
+<div class="day-section" id="day3">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Three</div>
+    <div class="day-subtitle">Cleaning — Rooms &amp; Surfaces</div>
+    <div class="day-desc">Ruangan dan permukaan — The places you clean every day</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day3" onclick="toggleComplete(3)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card noun"><div class="word-en">Floor</div><div class="word-id">Lantai</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Wall</div><div class="word-id">Dinding</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Window</div><div class="word-id">Jendela</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Bathroom</div><div class="word-id">Kamar mandi</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Kitchen</div><div class="word-id">Dapur</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Bedroom</div><div class="word-id">Kamar tidur</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Ceiling</div><div class="word-id">Langit-langit</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Table</div><div class="word-id">Meja</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Counter</div><div class="word-id">Meja dapur / Counter</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Sink</div><div class="word-id">Wastafel / Bak cuci</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Stain</div><div class="word-id">Noda</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Dust</div><div class="word-id">Debu</div><span class="word-type">Noun</span></div>
+      <div class="word-card verb"><div class="word-en">Wipe</div><div class="word-id">Mengelap</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Scrub</div><div class="word-id">Menggosok</div><span class="word-type">Verb</span></div>
+      <div class="word-card adj"><div class="word-en">Dusty</div><div class="word-id">Berdebu</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">floor</span> in the <span class="highlight">bedroom</span> is <span class="highlight">dusty</span>. I need <span class="gloss">(butuh)</span> to sweep it.</div>
+        <div class="sentence-id">Lantai di kamar tidur berdebu. Saya perlu menyapunya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Wipe</span> the <span class="highlight">counter</span> after <span class="gloss">(setelah)</span> you cook <span class="gloss">(memasak)</span> in the <span class="highlight">kitchen</span>.</div>
+        <div class="sentence-id">Lap meja dapur setelah kamu memasak di dapur.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">There is <span class="gloss">(ada)</span> a big <span class="gloss">(besar)</span> <span class="highlight">stain</span> on the <span class="highlight">wall</span> near <span class="gloss">(dekat)</span> the door <span class="gloss">(pintu)</span>.</div>
+        <div class="sentence-id">Ada noda besar di dinding dekat pintu.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Please <span class="highlight">scrub</span> the <span class="highlight">sink</span> in the <span class="highlight">bathroom</span> with the brush.</div>
+        <div class="sentence-id">Tolong gosok wastafel di kamar mandi dengan sikat.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">windows</span> are very <span class="gloss">(sangat)</span> dirty. Can you clean them <span class="gloss">(membersihkannya)</span> today <span class="gloss">(hari ini)</span>?</div>
+        <div class="sentence-id">Jendelanya sangat kotor. Bisakah kamu membersihkannya hari ini?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">There is a lot of <span class="gloss">(banyak)</span> <span class="highlight">dust</span> on the <span class="highlight">ceiling</span>. Be careful <span class="gloss">(hati-hati)</span> when you clean it.</div>
+        <div class="sentence-id">Ada banyak debu di langit-langit. Hati-hati saat kamu membersihkannya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">wipe</span> the <span class="highlight">table</span> every morning <span class="gloss">(setiap pagi)</span> after breakfast <span class="gloss">(setelah sarapan)</span>.</div>
+        <div class="sentence-id">Saya mengelap meja setiap pagi setelah sarapan.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">kitchen</span> looks beautiful <span class="gloss">(terlihat cantik)</span> now — the <span class="highlight">counter</span> is clean and the <span class="highlight">sink</span> is shiny <span class="gloss">(berkilau)</span>!</div>
+        <div class="sentence-id">Dapur terlihat cantik sekarang — meja dapur bersih dan wastafelnya berkilau!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara dan kirimkan kepada saya. Hari ini, jalan-jalan sebentar di sekitar rumah dan ceritakan apa yang kamu lihat!</p>
+    <ul class="ex-tasks">
+      <li>Sebutkan 3 ruangan dalam bahasa Inggris dan katakan apakah ruangan itu bersih atau kotor, contoh: "The kitchen is clean. The bedroom is dusty."</li>
+      <li>Pilih satu benda di rumah (meja, jendela, wastafel) dan buat kalimat tentangnya, misalnya: "The window is dirty. I need to wipe it."</li>
+      <li>Ceritakan satu hal yang sudah kamu bersihkan hari ini: "I scrubbed the sink" atau "I wiped the table."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 4 ==================== -->
+<div class="day-section" id="day4">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Four</div>
+    <div class="day-subtitle">Cleaning — Laundry &amp; Products</div>
+    <div class="day-desc">Mencuci pakaian dan produk kebersihan — Laundry and cleaning products</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day4" onclick="toggleComplete(4)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card verb"><div class="word-en">Wash</div><div class="word-id">Mencuci</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Rinse</div><div class="word-id">Membilas</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Fold</div><div class="word-id">Melipat</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Iron</div><div class="word-id">Menyetrika</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Empty</div><div class="word-id">Mengosongkan</div><span class="word-type">Verb</span></div>
+      <div class="word-card noun"><div class="word-en">Bleach</div><div class="word-id">Pemutih pakaian</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Detergent</div><div class="word-id">Deterjen</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Garbage</div><div class="word-id">Sampah</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Bag</div><div class="word-id">Tas / Kantong</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Smell</div><div class="word-id">Bau / Aroma</div><span class="word-type">Noun</span></div>
+      <div class="word-card adj"><div class="word-en">Full</div><div class="word-id">Penuh</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Heavy</div><div class="word-id">Berat</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Light</div><div class="word-id">Ringan / Terang</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Strong</div><div class="word-id">Kuat / Menyengat</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Dry</div><div class="word-id">Kering</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">wash</span> the clothes <span class="gloss">(pakaian)</span> with <span class="highlight">detergent</span>, then <span class="highlight">rinse</span> them with clean water.</div>
+        <div class="sentence-id">Saya mencuci pakaian dengan deterjen, kemudian membilasnya dengan air bersih.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">garbage</span> <span class="highlight">bag</span> is <span class="highlight">full</span>. Please <span class="highlight">empty</span> it and take <span class="gloss">(bawa)</span> it outside <span class="gloss">(ke luar)</span>.</div>
+        <div class="sentence-id">Kantong sampahnya penuh. Tolong kosongkan dan bawa ke luar.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">This shirt <span class="gloss">(kemeja ini)</span> has a stain. Use a little <span class="gloss">(sedikit)</span> <span class="highlight">bleach</span> to remove <span class="gloss">(menghilangkan)</span> it.</div>
+        <div class="sentence-id">Kemeja ini ada nodanya. Gunakan sedikit pemutih untuk menghilangkannya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">After washing, <span class="highlight">fold</span> the clothes neatly <span class="gloss">(dengan rapi)</span> and put them <span class="gloss">(simpan)</span> in the cupboard <span class="gloss">(lemari)</span>.</div>
+        <div class="sentence-id">Setelah mencuci, lipat pakaian dengan rapi dan simpan di lemari.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">This towel <span class="gloss">(handuk)</span> is <span class="highlight">heavy</span> because <span class="gloss">(karena)</span> it is still wet <span class="gloss">(masih basah)</span>. Wait <span class="gloss">(tunggu)</span> until it is <span class="highlight">dry</span>.</div>
+        <div class="sentence-id">Handuk ini berat karena masih basah. Tunggu sampai kering.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">bleach</span> has a very <span class="highlight">strong</span> <span class="highlight">smell</span>. Open the window <span class="gloss">(buka jendela)</span> when you use it.</div>
+        <div class="sentence-id">Pemutih memiliki bau yang sangat menyengat. Buka jendela saat menggunakannya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Please <span class="highlight">iron</span> these shirts <span class="gloss">(kemeja-kemeja ini)</span> after <span class="gloss">(setelah)</span> they are <span class="highlight">dry</span>.</div>
+        <div class="sentence-id">Tolong setrika kemeja-kemeja ini setelah kering.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Use only a <span class="highlight">light</span> amount <span class="gloss">(sedikit saja)</span> of <span class="highlight">detergent</span> — not too much <span class="gloss">(tidak terlalu banyak)</span>!</div>
+        <div class="sentence-id">Gunakan deterjen sedikit saja — tidak terlalu banyak!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara dan ceritakan tentang cucian atau kebersihan rumah hari ini.</p>
+    <ul class="ex-tasks">
+      <li>Ceritakan apakah kamu sudah mencuci pakaian hari ini. Gunakan kata <em>wash</em>, <em>rinse</em>, atau <em>fold</em> dalam kalimatmu.</li>
+      <li>Gambarkan satu produk kebersihan yang kamu gunakan: apakah baunya kuat atau ringan? Berat atau ringan? Gunakan <em>strong</em>, <em>light</em>, atau <em>heavy</em>.</li>
+      <li>Buat kalimat tentang sampah: "The garbage bag is full" atau "I empty the garbage every day."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 5 ==================== -->
+<div class="day-section" id="day5">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Five</div>
+    <div class="day-subtitle">Family — Members &amp; Relationships</div>
+    <div class="day-desc">Anggota keluarga — The people you love most</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day5" onclick="toggleComplete(5)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card noun"><div class="word-en">Mother</div><div class="word-id">Ibu</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Father</div><div class="word-id">Ayah / Bapak</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Son</div><div class="word-id">Anak laki-laki</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Daughter</div><div class="word-id">Anak perempuan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Sister</div><div class="word-id">Saudara perempuan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Brother</div><div class="word-id">Saudara laki-laki</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Baby</div><div class="word-id">Bayi</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Husband</div><div class="word-id">Suami</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Wife</div><div class="word-id">Istri</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Grandmother</div><div class="word-id">Nenek</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Grandfather</div><div class="word-id">Kakek</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Child / Children</div><div class="word-id">Anak / Anak-anak</div><span class="word-type">Noun</span></div>
+      <div class="word-card verb"><div class="word-en">Love</div><div class="word-id">Mencintai / Menyayangi</div><span class="word-type">Verb</span></div>
+      <div class="word-card adj"><div class="word-en">Kind</div><div class="word-id">Baik hati / Ramah</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Young</div><div class="word-id">Muda</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">My <span class="highlight">mother</span> is very <span class="highlight">kind</span>. She always <span class="gloss">(selalu)</span> helps <span class="gloss">(membantu)</span> me when I am sad <span class="gloss">(sedih)</span>.</div>
+        <div class="sentence-id">Ibu saya sangat baik hati. Beliau selalu membantu saya saat saya sedih.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I have <span class="gloss">(punya)</span> two <span class="highlight">children</span> — one <span class="highlight">son</span> and one <span class="highlight">daughter</span>.</div>
+        <div class="sentence-id">Saya punya dua anak — satu anak laki-laki dan satu anak perempuan.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">My <span class="highlight">baby</span> is so cute <span class="gloss">(lucu)</span>! She laughs <span class="gloss">(tertawa)</span> all the time <span class="gloss">(sepanjang waktu)</span>.</div>
+        <div class="sentence-id">Bayi saya sangat lucu! Dia tertawa sepanjang waktu.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">My <span class="highlight">husband</span> works <span class="gloss">(bekerja)</span> far away <span class="gloss">(jauh)</span>. I miss <span class="gloss">(rindu)</span> him very much <span class="gloss">(sangat)</span>.</div>
+        <div class="sentence-id">Suami saya bekerja jauh. Saya sangat merindukannya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">My <span class="highlight">sister</span> is <span class="highlight">young</span> — she is only <span class="gloss">(hanya)</span> fifteen years old <span class="gloss">(lima belas tahun)</span>.</div>
+        <div class="sentence-id">Saudara perempuan saya masih muda — dia baru lima belas tahun.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">My <span class="highlight">grandmother</span> taught <span class="gloss">(mengajarkan)</span> me how to <span class="gloss">(cara)</span> cook. She is very <span class="highlight">kind</span> and patient <span class="gloss">(sabar)</span>.</div>
+        <div class="sentence-id">Nenek saya mengajarkan saya cara memasak. Beliau sangat baik hati dan sabar.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">love</span> my <span class="highlight">father</span>. He works <span class="gloss">(bekerja)</span> hard <span class="gloss">(keras)</span> every day for our <span class="highlight">family</span>.</div>
+        <div class="sentence-id">Saya mencintai ayah saya. Beliau bekerja keras setiap hari untuk keluarga kami.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">My <span class="highlight">brother</span> and I call <span class="gloss">(menelepon)</span> our <span class="highlight">grandfather</span> every Sunday <span class="gloss">(setiap hari Minggu)</span>.</div>
+        <div class="sentence-id">Saudara laki-laki saya dan saya menelepon kakek kami setiap hari Minggu.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara tentang keluarga kamu! Ini adalah topik yang menyenangkan — ceritakan orang-orang yang kamu cintai.</p>
+    <ul class="ex-tasks">
+      <li>Perkenalkan keluarga kamu — sebutkan anggota keluarga menggunakan nama bahasa Inggris: "I have a mother, a father, and one brother."</li>
+      <li>Gambarkan salah satu anggota keluargamu menggunakan kata sifat: "My mother is kind" atau "My son is young."</li>
+      <li>Buat satu kalimat menggunakan kata <em>love</em>: "I love my family" atau "I love my children."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 6 ==================== -->
+<div class="day-section" id="day6">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Six</div>
+    <div class="day-subtitle">Family — Feelings &amp; Daily Life</div>
+    <div class="day-desc">Perasaan dan kehidupan sehari-hari — Emotions and everyday moments</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day6" onclick="toggleComplete(6)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card adj"><div class="word-en">Happy</div><div class="word-id">Bahagia / Senang</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Sad</div><div class="word-id">Sedih</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Tired</div><div class="word-id">Lelah / Capek</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Hungry</div><div class="word-id">Lapar</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Sick</div><div class="word-id">Sakit</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Gentle</div><div class="word-id">Lembut / Penyayang</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Busy</div><div class="word-id">Sibuk</div><span class="word-type">Adjective</span></div>
+      <div class="word-card verb"><div class="word-en">Play</div><div class="word-id">Bermain</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Sleep</div><div class="word-id">Tidur</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Wake up</div><div class="word-id">Bangun tidur</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Laugh</div><div class="word-id">Tertawa</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Cry</div><div class="word-id">Menangis</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Hug</div><div class="word-id">Memeluk</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Worry</div><div class="word-id">Khawatir / Cemas</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Eat</div><div class="word-id">Makan</div><span class="word-type">Verb</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">I am so <span class="highlight">tired</span> today. I <span class="highlight">woke up</span> very early <span class="gloss">(sangat pagi)</span> this morning <span class="gloss">(pagi ini)</span>.</div>
+        <div class="sentence-id">Saya sangat lelah hari ini. Saya bangun sangat pagi tadi.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The children are <span class="highlight">happy</span> because <span class="gloss">(karena)</span> they can <span class="highlight">play</span> outside <span class="gloss">(di luar)</span> today.</div>
+        <div class="sentence-id">Anak-anak senang karena mereka bisa bermain di luar hari ini.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I am <span class="highlight">hungry</span>. When can I <span class="highlight">eat</span>? <span class="gloss">(Kapan saya bisa makan?)</span></div>
+        <div class="sentence-id">Saya lapar. Kapan saya bisa makan?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Don't <span class="highlight">worry</span> <span class="gloss">(jangan khawatir)</span> — the baby is just <span class="highlight">tired</span>. She will <span class="highlight">sleep</span> soon <span class="gloss">(sebentar lagi)</span>.</div>
+        <div class="sentence-id">Jangan khawatir — bayi itu hanya kelelahan. Dia akan segera tidur.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">She is <span class="highlight">gentle</span> with the baby. She always <span class="highlight">hugs</span> him softly <span class="gloss">(dengan lembut)</span>.</div>
+        <div class="sentence-id">Dia lembut dengan bayinya. Dia selalu memeluknya dengan lembut.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">My son is <span class="highlight">sick</span> today. He cried <span class="gloss">(menangis)</span> all night <span class="gloss">(semalam)</span>. I am very <span class="highlight">worried</span>.</div>
+        <div class="sentence-id">Anak laki-laki saya sakit hari ini. Dia menangis semalam. Saya sangat khawatir.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">We <span class="highlight">laughed</span> together <span class="gloss">(bersama)</span> at dinner <span class="gloss">(saat makan malam)</span>. It was a <span class="highlight">happy</span> evening.</div>
+        <div class="sentence-id">Kami tertawa bersama saat makan malam. Itu adalah malam yang menyenangkan.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I am very <span class="highlight">busy</span> this week <span class="gloss">(minggu ini)</span> — but I always make time <span class="gloss">(menyempatkan)</span> to call my <span class="highlight">mother</span>.</div>
+        <div class="sentence-id">Saya sangat sibuk minggu ini — tapi saya selalu menyempatkan waktu untuk menelepon ibu saya.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara tentang perasaan kamu hari ini. Tidak perlu panjang — yang penting jujur dan dari hati!</p>
+    <ul class="ex-tasks">
+      <li>Katakan bagaimana perasaan kamu saat ini menggunakan salah satu kata hari ini: "I am happy / tired / busy / hungry today."</li>
+      <li>Ceritakan tentang seseorang di keluargamu — apakah mereka <em>happy</em> atau <em>sad</em> hari ini? Mengapa?</li>
+      <li>Gunakan satu kata kerja perasaan dalam kalimat: "My children laugh every day" atau "I hug my baby every morning."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 7 ==================== -->
+<div class="day-section" id="day7">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Seven</div>
+    <div class="day-subtitle">Eating &amp; The Kitchen</div>
+    <div class="day-desc">Memasak dan makan — Cooking and enjoying food</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day7" onclick="toggleComplete(7)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card verb"><div class="word-en">Cook</div><div class="word-id">Memasak</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Boil</div><div class="word-id">Merebus</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Fry</div><div class="word-id">Menggoreng</div><span class="word-type">Verb</span></div>
+      <div class="word-card noun"><div class="word-en">Rice</div><div class="word-id">Nasi / Beras</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Vegetable</div><div class="word-id">Sayuran</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Chicken</div><div class="word-id">Ayam</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Egg</div><div class="word-id">Telur</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Oil</div><div class="word-id">Minyak</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Salt</div><div class="word-id">Garam</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Sugar</div><div class="word-id">Gula</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Plate</div><div class="word-id">Piring</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Cup</div><div class="word-id">Cangkir / Gelas</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Knife</div><div class="word-id">Pisau</div><span class="word-type">Noun</span></div>
+      <div class="word-card adj"><div class="word-en">Hot</div><div class="word-id">Panas</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Delicious</div><div class="word-id">Enak / Lezat</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">cook</span> <span class="highlight">rice</span> and <span class="highlight">vegetables</span> for lunch <span class="gloss">(makan siang)</span> every day.</div>
+        <div class="sentence-id">Saya memasak nasi dan sayuran untuk makan siang setiap hari.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Boil</span> the <span class="highlight">eggs</span> for ten minutes <span class="gloss">(sepuluh menit)</span>, then <span class="gloss">(kemudian)</span> put them <span class="gloss">(taruh)</span> in cold <span class="gloss">(dingin)</span> water.</div>
+        <div class="sentence-id">Rebus telur selama sepuluh menit, kemudian masukkan ke dalam air dingin.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Fry</span> the <span class="highlight">chicken</span> in <span class="highlight">hot</span> <span class="highlight">oil</span> until it is golden <span class="gloss">(kecoklatan)</span>.</div>
+        <div class="sentence-id">Goreng ayam dalam minyak panas hingga kecoklatan.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Add <span class="gloss">(tambahkan)</span> a little <span class="highlight">salt</span> and <span class="highlight">sugar</span> to make <span class="gloss">(membuat)</span> the soup <span class="gloss">(sup)</span> more <span class="highlight">delicious</span>.</div>
+        <div class="sentence-id">Tambahkan sedikit garam dan gula agar supnya lebih enak.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Please set the table <span class="gloss">(siapkan meja makan)</span> — put a <span class="highlight">plate</span>, a <span class="highlight">cup</span>, and a <span class="highlight">knife</span> for each person <span class="gloss">(setiap orang)</span>.</div>
+        <div class="sentence-id">Tolong siapkan meja makan — taruh piring, gelas, dan pisau untuk setiap orang.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Be careful <span class="gloss">(hati-hati)</span>! The <span class="highlight">oil</span> is very <span class="highlight">hot</span>. Don't touch <span class="gloss">(jangan pegang)</span> the pan <span class="gloss">(wajan)</span>.</div>
+        <div class="sentence-id">Hati-hati! Minyaknya sangat panas. Jangan pegang wajan.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">This <span class="highlight">chicken</span> and <span class="highlight">rice</span> is absolutely <span class="gloss">(sangat)</span> <span class="highlight">delicious</span>! Did you <span class="highlight">cook</span> it yourself <span class="gloss">(sendiri)</span>?</div>
+        <div class="sentence-id">Ayam dan nasi ini sangat enak! Apakah kamu memasaknya sendiri?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Wash the <span class="highlight">plates</span> and <span class="highlight">cups</span> after every meal <span class="gloss">(setiap selesai makan)</span>.</div>
+        <div class="sentence-id">Cuci piring dan gelas setiap selesai makan.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara tentang masakan! Ini topik yang menyenangkan karena kamu pasti sudah ahli.</p>
+    <ul class="ex-tasks">
+      <li>Ceritakan apa yang kamu masak hari ini atau kemarin. Gunakan kata <em>cook</em>, <em>boil</em>, atau <em>fry</em>: "Today I cook rice and chicken."</li>
+      <li>Sebutkan 3 bahan makanan yang ada di dapur kamu sekarang dalam bahasa Inggris.</li>
+      <li>Buat kalimat menggunakan kata <em>delicious</em> atau <em>hot</em>: "The soup is hot and delicious!"</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 8 ==================== -->
+<div class="day-section" id="day8">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Eight</div>
+    <div class="day-subtitle">Groceries &amp; Shopping</div>
+    <div class="day-desc">Belanja kebutuhan sehari-hari — Buying food and everyday items</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day8" onclick="toggleComplete(8)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card verb"><div class="word-en">Buy</div><div class="word-id">Membeli</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Pay</div><div class="word-id">Membayar</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Choose</div><div class="word-id">Memilih</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Need</div><div class="word-id">Butuh / Perlu</div><span class="word-type">Verb</span></div>
+      <div class="word-card noun"><div class="word-en">Market</div><div class="word-id">Pasar</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Price</div><div class="word-id">Harga</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">List</div><div class="word-id">Daftar (belanja)</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Fruit</div><div class="word-id">Buah</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Fish</div><div class="word-id">Ikan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Meat</div><div class="word-id">Daging</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Bag</div><div class="word-id">Tas / Kantong belanja</div><span class="word-type">Noun</span></div>
+      <div class="word-card adj"><div class="word-en">Cheap</div><div class="word-id">Murah</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Expensive</div><div class="word-id">Mahal</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Fresh</div><div class="word-id">Segar</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Heavy</div><div class="word-id">Berat</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">I go to <span class="gloss">(pergi ke)</span> the <span class="highlight">market</span> every morning to <span class="highlight">buy</span> <span class="highlight">fresh</span> <span class="highlight">vegetables</span> and <span class="highlight">fruit</span>.</div>
+        <div class="sentence-id">Saya pergi ke pasar setiap pagi untuk membeli sayuran dan buah segar.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">meat</span> is very <span class="highlight">expensive</span> today. Let's <span class="gloss">(ayo kita)</span> <span class="highlight">buy</span> <span class="highlight">fish</span> instead <span class="gloss">(saja)</span>.</div>
+        <div class="sentence-id">Dagingnya sangat mahal hari ini. Ayo kita beli ikan saja.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Always write a shopping <span class="highlight">list</span> before <span class="gloss">(sebelum)</span> you go to the <span class="highlight">market</span> so you don't forget <span class="gloss">(agar tidak lupa)</span> anything <span class="gloss">(apapun)</span>.</div>
+        <div class="sentence-id">Selalu tulis daftar belanja sebelum pergi ke pasar agar tidak ada yang terlupa.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">This mango <span class="gloss">(mangga)</span> looks <span class="highlight">fresh</span> and the <span class="highlight">price</span> is very <span class="highlight">cheap</span>! I will <span class="highlight">buy</span> three <span class="gloss">(tiga)</span>.</div>
+        <div class="sentence-id">Mangga ini terlihat segar dan harganya sangat murah! Saya akan beli tiga.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">How much <span class="gloss">(berapa harga)</span> is the <span class="highlight">fish</span> today? Is the <span class="highlight">price</span> good <span class="gloss">(bagus)</span>?</div>
+        <div class="sentence-id">Berapa harga ikannya hari ini? Apakah harganya bagus?</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">need</span> to <span class="highlight">buy</span> <span class="highlight">meat</span>, <span class="highlight">fruit</span>, and some <span class="highlight">vegetables</span>. The shopping <span class="highlight">bag</span> is going to be very <span class="highlight">heavy</span>!</div>
+        <div class="sentence-id">Saya perlu membeli daging, buah, dan beberapa sayuran. Tas belanjaannya pasti sangat berat!</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Please <span class="highlight">choose</span> the ripest <span class="gloss">(paling matang)</span> bananas <span class="gloss">(pisang)</span> — not too yellow <span class="gloss">(terlalu kuning)</span> and not too green <span class="gloss">(terlalu hijau)</span>.</div>
+        <div class="sentence-id">Tolong pilih pisang yang paling matang — tidak terlalu kuning dan tidak terlalu hijau.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">paid</span> for the groceries <span class="gloss">(belanjaan)</span> and carried <span class="gloss">(membawa)</span> the heavy <span class="highlight">bag</span> home <span class="gloss">(ke rumah)</span>.</div>
+        <div class="sentence-id">Saya membayar belanjaan dan membawa kantong yang berat ke rumah.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara tentang belanja! Bayangkan kamu sedang di pasar saat merekam.</p>
+    <ul class="ex-tasks">
+      <li>Ceritakan apa yang biasanya kamu beli di pasar. Gunakan kata <em>buy</em>: "I usually buy fish, vegetables, and fruit."</li>
+      <li>Bandingkan dua bahan makanan — mana yang lebih mahal, mana yang lebih murah? "The meat is expensive, but the fish is cheap."</li>
+      <li>Buat kalimat menggunakan kata <em>fresh</em> dan <em>need</em>: "I need to buy fresh fruit today."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 9 ==================== -->
+<div class="day-section" id="day9">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Nine</div>
+    <div class="day-subtitle">Gardening — Plants &amp; Tools</div>
+    <div class="day-desc">Berkebun — Tanaman dan alat berkebun</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day9" onclick="toggleComplete(9)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card verb"><div class="word-en">Plant</div><div class="word-id">Menanam</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Water</div><div class="word-id">Menyiram</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Grow</div><div class="word-id">Tumbuh / Menumbuhkan</div><span class="word-type">Verb</span></div>
+      <div class="word-card noun"><div class="word-en">Flower</div><div class="word-id">Bunga</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Tree</div><div class="word-id">Pohon</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Grass</div><div class="word-id">Rumput</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Leaf / Leaves</div><div class="word-id">Daun / Daun-daun</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Soil</div><div class="word-id">Tanah</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Pot</div><div class="word-id">Pot</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Seed</div><div class="word-id">Benih / Biji</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Shovel</div><div class="word-id">Sekop</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Garden</div><div class="word-id">Kebun / Taman</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Root</div><div class="word-id">Akar</div><span class="word-type">Noun</span></div>
+      <div class="word-card adj"><div class="word-en">Beautiful</div><div class="word-id">Indah / Cantik</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Tall</div><div class="word-id">Tinggi</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">I <span class="highlight">water</span> the <span class="highlight">flowers</span> and <span class="highlight">plants</span> in the <span class="highlight">garden</span> every morning.</div>
+        <div class="sentence-id">Saya menyiram bunga dan tanaman di kebun setiap pagi.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Use the <span class="highlight">shovel</span> to dig <span class="gloss">(menggali)</span> the <span class="highlight">soil</span> before you <span class="highlight">plant</span> the <span class="highlight">seeds</span>.</div>
+        <div class="sentence-id">Gunakan sekop untuk menggali tanah sebelum menanam benih.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">This <span class="highlight">tree</span> is very <span class="highlight">tall</span>! It has been <span class="gloss">(sudah)</span> growing <span class="gloss">(tumbuh)</span> for many years <span class="gloss">(bertahun-tahun)</span>.</div>
+        <div class="sentence-id">Pohon ini sangat tinggi! Sudah tumbuh bertahun-tahun.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Put the <span class="highlight">seeds</span> in a <span class="highlight">pot</span> with good <span class="highlight">soil</span> and <span class="highlight">water</span> them gently <span class="gloss">(perlahan)</span> every day.</div>
+        <div class="sentence-id">Masukkan benih ke dalam pot dengan tanah yang baik dan siram perlahan setiap hari.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The yellow <span class="highlight">flowers</span> in the front garden <span class="gloss">(taman depan)</span> are so <span class="highlight">beautiful</span>!</div>
+        <div class="sentence-id">Bunga-bunga kuning di taman depan sangat indah!</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">roots</span> of this <span class="highlight">tree</span> are very deep <span class="gloss">(dalam)</span>. Be careful <span class="gloss">(hati-hati)</span> when you dig near <span class="gloss">(dekat)</span> it.</div>
+        <div class="sentence-id">Akar pohon ini sangat dalam. Hati-hati saat menggali di dekatnya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The <span class="highlight">grass</span> is <span class="highlight">growing</span> very fast <span class="gloss">(cepat)</span>. We need to cut <span class="gloss">(memotong)</span> it soon <span class="gloss">(segera)</span>.</div>
+        <div class="sentence-id">Rumputnya tumbuh sangat cepat. Kita perlu segera memotongnya.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The dead <span class="gloss">(mati/layu)</span> <span class="highlight">leaves</span> have fallen <span class="gloss">(jatuh)</span> from the <span class="highlight">tree</span>. Please sweep <span class="gloss">(sapu)</span> them up <span class="gloss">(kumpulkan)</span>.</div>
+        <div class="sentence-id">Daun-daun layu sudah jatuh dari pohon. Tolong sapu dan kumpulkan.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Ini</div>
+    <p>Rekam pesan suara tentang tanaman atau taman! Kalau bisa, lakukan rekaman sambil ada di luar ruangan.</p>
+    <ul class="ex-tasks">
+      <li>Gambarkan taman atau tanaman yang ada di rumah — sebutkan setidaknya 3 kata dari hari ini: "In the garden there are flowers, trees, and grass."</li>
+      <li>Ceritakan satu kegiatan berkebun yang kamu lakukan: "I water the plants every morning" atau "I planted seeds in a pot."</li>
+      <li>Gunakan kata <em>beautiful</em> atau <em>tall</em> untuk menggambarkan sesuatu yang kamu lihat: "The tree is very tall."</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ==================== DAY 10 ==================== -->
+<div class="day-section" id="day10">
+<div class="day-card">
+  <div class="day-header">
+    <div class="day-number">Day Ten</div>
+    <div class="day-subtitle">Gardening — Nature &amp; Care</div>
+    <div class="day-desc">Alam dan merawat tanaman — The world outside and caring for it</div>
+    <div class="day-divider"></div>
+    <button class="complete-toggle" id="complete-day10" onclick="toggleComplete(10)">
+      <span class="check-icon">☐</span><span class="label-text">Tandai Selesai</span>
+    </button>
+  </div>
+
+  <div class="vocab-section">
+    <h2>📖 Kata-Kata Hari Ini</h2>
+    <div class="vocab-grid">
+      <div class="word-card verb"><div class="word-en">Trim</div><div class="word-id">Memangkas / Merapikan</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Rake</div><div class="word-id">Menyapu (daun) dengan garpu</div><span class="word-type">Verb</span></div>
+      <div class="word-card verb"><div class="word-en">Harvest</div><div class="word-id">Memanen</div><span class="word-type">Verb</span></div>
+      <div class="word-card noun"><div class="word-en">Sun</div><div class="word-id">Matahari</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Rain</div><div class="word-id">Hujan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Wind</div><div class="word-id">Angin</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Shade</div><div class="word-id">Teduh / Bayangan</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Fertilizer</div><div class="word-id">Pupuk</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Weed</div><div class="word-id">Gulma / Rumput liar</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Butterfly</div><div class="word-id">Kupu-kupu</div><span class="word-type">Noun</span></div>
+      <div class="word-card noun"><div class="word-en">Bird</div><div class="word-id">Burung</div><span class="word-type">Noun</span></div>
+      <div class="word-card adj"><div class="word-en">Healthy</div><div class="word-id">Sehat / Subur</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Natural</div><div class="word-id">Alami</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Wet</div><div class="word-id">Basah</div><span class="word-type">Adjective</span></div>
+      <div class="word-card adj"><div class="word-en">Dry</div><div class="word-id">Kering</div><span class="word-type">Adjective</span></div>
+    </div>
+  </div>
+
+  <div class="sentences-section">
+    <h2>💬 Contoh Kalimat</h2>
+    <div class="sentence-list">
+      <div class="sentence-item">
+        <div class="sentence-en">After the <span class="highlight">rain</span>, the garden is <span class="highlight">wet</span> and smells <span class="gloss">(berbau)</span> so <span class="highlight">natural</span> and fresh.</div>
+        <div class="sentence-id">Setelah hujan, kebun itu basah dan berbau begitu alami dan segar.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Add <span class="gloss">(tambahkan)</span> <span class="highlight">fertilizer</span> to the <span class="highlight">soil</span> once a month <span class="gloss">(sebulan sekali)</span> to keep the plants <span class="highlight">healthy</span>.</div>
+        <div class="sentence-id">Tambahkan pupuk ke tanah sebulan sekali untuk menjaga tanaman tetap subur.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Please <span class="highlight">trim</span> the bushes <span class="gloss">(semak-semak)</span> near <span class="gloss">(dekat)</span> the gate <span class="gloss">(gerbang)</span> — they are growing too wide <span class="gloss">(terlalu lebar)</span>.</div>
+        <div class="sentence-id">Tolong pangkas semak-semak dekat gerbang — sudah tumbuh terlalu lebar.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">A <span class="highlight">butterfly</span> landed <span class="gloss">(hinggap)</span> on the flower this morning. It was so beautiful <span class="gloss">(sangat indah)</span>!</div>
+        <div class="sentence-id">Seekor kupu-kupu hinggap di bunga tadi pagi. Sangat indah!</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">Pull out <span class="gloss">(cabut)</span> the <span class="highlight">weeds</span> from the garden so they don't take away <span class="gloss">(mengambil)</span> nutrients <span class="gloss">(nutrisi)</span> from the other plants.</div>
+        <div class="sentence-id">Cabut gulma dari kebun agar tidak mengambil nutrisi dari tanaman lain.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en"><span class="highlight">Rake</span> the dry <span class="highlight">leaves</span> into a pile <span class="gloss">(tumpukan)</span> in the corner <span class="gloss">(sudut)</span> of the garden.</div>
+        <div class="sentence-id">Kumpulkan daun-daun kering menjadi tumpukan di sudut kebun.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The tomatoes <span class="gloss">(tomat)</span> are ready <span class="gloss">(sudah siap)</span>! Let's <span class="highlight">harvest</span> them before the <span class="highlight">birds</span> eat them all <span class="gloss">(memakannya semua)</span>.</div>
+        <div class="sentence-id">Tomatnya sudah siap! Ayo panen sebelum burung-burung memakannya semua.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">In the afternoon <span class="gloss">(di sore hari)</span>, sit under the <span class="highlight">shade</span> of the big <span class="highlight">tree</span>. Listen to <span class="gloss">(dengarkan)</span> the <span class="highlight">birds</span> and feel the cool <span class="gloss">(sejuk)</span> <span class="highlight">wind</span>.</div>
+        <div class="sentence-id">Di sore hari, duduklah di bawah keteduhan pohon besar. Dengarkan burung-burung dan rasakan angin yang sejuk.</div>
+      </div>
+      <div class="sentence-item">
+        <div class="sentence-en">The soil is too <span class="highlight">dry</span> — water the plants now before the <span class="highlight">sun</span> gets too strong <span class="gloss">(terlalu terik)</span>.</div>
+        <div class="sentence-id">Tanahnya terlalu kering — siram tanamannya sekarang sebelum matahari terlalu terik.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="ex-title">🎙️ Latihan Hari Terakhir! 🎉</div>
+    <p>Selamat! Kamu sudah menyelesaikan 10 hari belajar bahasa Inggris! Untuk latihan terakhir ini, rekam pesan suara yang sedikit lebih panjang.</p>
+    <ul class="ex-tasks">
+      <li>Ceritakan tentang cuaca hari ini menggunakan kata-kata dari pelajaran ini: "Today the sun is hot" atau "Today it is raining and the garden is wet."</li>
+      <li>Gambarkan taman atau halaman rumah — sebutkan setidaknya 3 benda atau makhluk hidup yang kamu lihat: birds, butterflies, trees, flowers, grass, weeds...</li>
+      <li>Ceritakan apa yang perlu dilakukan di taman hari ini: "I need to trim the bushes" atau "I need to water the plants because the soil is dry."</li>
+      <li>Di akhir rekaman, ucapkan sesuatu dalam bahasa Inggris tentang bagaimana perasaanmu setelah 10 hari belajar ini. Bangga? Senang? Kamu boleh bilang: "I am happy. I learned many new words!"</li>
+    </ul>
+    <p style="margin-top:1rem;font-size:0.95rem;color:#5a4a35;font-weight:600">Terima kasih sudah belajar dengan semangat setiap hari. Kamu luar biasa! ⭐</p>
+  </div>
+
+  <!-- Completion banner -->
+  <div style="background: linear-gradient(135deg, var(--navy), var(--cerulean)); color: white; border-radius: 16px; padding: 2rem; text-align: center; margin-top: 1.5rem;">
+    <div style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.5rem;">You did it! ✨</div>
+    <p style="opacity: 0.9; font-size: 1rem; margin: 0;">150 new words in 10 days. Keep going — you are amazing.</p>
+    <p style="opacity: 0.75; font-size: 0.88rem; margin-top: 0.4rem;">Kamu sudah belajar 150 kata baru dalam 10 hari. Terus semangat — kamu luar biasa.</p>
+  </div>
+</div>
+</div>
+
+<footer style="text-align:center; padding: 3rem 1rem; color: var(--muted); font-size: 0.85rem;">
+  Made with care &nbsp;·&nbsp; English Lessons for a wonderful learner
+</footer>
+
+<script>
+function showDay(n) {
+  document.querySelectorAll('.day-section').forEach(function(s) { s.classList.remove('active'); });
+  var pane = document.getElementById('day' + n);
+  if (pane) pane.classList.add('active');
+  document.querySelectorAll('nav a').forEach(function(a, i) {
+    a.classList.toggle('active', i + 1 === n);
+  });
+  window.scrollTo(0, 0);
+  localStorage.setItem('widiya-english-day', n);
+}
+
+function toggleComplete(day) {
+  var key = 'widiya-lesson-' + day + '-complete';
+  var btn = document.getElementById('complete-day' + day);
+  var isDone = localStorage.getItem(key) === 'true';
+  if (isDone) {
+    localStorage.removeItem(key);
+    btn.classList.remove('done');
+    btn.querySelector('.check-icon').textContent = '☐';
+    btn.querySelector('.label-text').textContent = 'Tandai Selesai';
+  } else {
+    localStorage.setItem(key, 'true');
+    btn.classList.add('done');
+    btn.querySelector('.check-icon').textContent = '✅';
+    btn.querySelector('.label-text').textContent = 'Selesai!';
+  }
+}
+
+// Restore complete states
+for (var d = 1; d <= 10; d++) {
+  if (localStorage.getItem('widiya-lesson-' + d + '-complete') === 'true') {
+    var btn = document.getElementById('complete-day' + d);
+    if (btn) {
+      btn.classList.add('done');
+      btn.querySelector('.check-icon').textContent = '✅';
+      btn.querySelector('.label-text').textContent = 'Selesai!';
+    }
+  }
+}
+
+// Add Prev / Next navigation to each day card
+for (var d = 1; d <= 10; d++) {
+  (function(day) {
+    var card = document.querySelector('#day' + day + ' .day-card');
+    var controls = document.createElement('div');
+    controls.className = 'day-nav-controls';
+    var prevBtn = day > 1
+      ? '<button class="day-nav-btn" onclick="showDay(' + (day - 1) + ')">← Hari ' + (day - 1) + '</button>'
+      : '<span></span>';
+    var nextBtn = day < 10
+      ? '<button class="day-nav-btn" onclick="showDay(' + (day + 1) + ')">Hari ' + (day + 1) + ' →</button>'
+      : '<span></span>';
+    controls.innerHTML = prevBtn + nextBtn;
+    card.appendChild(controls);
+  })(d);
+}
+
+// Hook up nav links to showDay
+document.querySelectorAll('nav a').forEach(function(a, i) {
+  var day = i + 1;
+  a.href = '#';
+  a.addEventListener('click', function(e) { e.preventDefault(); showDay(day); });
+});
+
+// Show initial day (restore last visited, default Day 1)
+var last = parseInt(localStorage.getItem('widiya-english-day')) || 1;
+showDay(last);
+</script>
+
+</body>
+</html>

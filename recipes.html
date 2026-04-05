@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Resep</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --bg: #fff8f2;
+      --text: #2d1a0e;
+      --text-muted: #7a5c44;
+      --card-bg: #ffffff;
+      --card-border: rgba(194, 100, 12, 0.12);
+      --card-shadow: 0 2px 12px rgba(194, 100, 12, 0.08);
+      --card-shadow-hover: 0 6px 24px rgba(194, 100, 12, 0.14);
+      --accent: #c2410c;
+      --accent-light: #ffedd5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ─── VIEWS ──────────────────────────────────────────────── */
+    .view {
+      position: fixed;
+      inset: 0;
+      overflow-y: auto;
+      background: var(--bg);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity  0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    #view-list { transform: translateX(0); opacity: 1; }
+    #view-list.slide-out { transform: translateX(-28%); opacity: 0.55; pointer-events: none; }
+    #view-detail { transform: translateX(100%); opacity: 0; pointer-events: none; }
+    #view-detail.slide-in { transform: translateX(0); opacity: 1; pointer-events: auto; }
+    @media (prefers-reduced-motion: reduce) { .view { transition: none; } }
+
+    /* ─── LIST VIEW ──────────────────────────────────────────── */
+    .page {
+      min-height: 100%;
+      padding: 2rem 1.5rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+    .page-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    /* Category groups */
+    .recipe-group { margin-bottom: 2rem; }
+    .recipe-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+    }
+    .recipe-group-header .cat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ─── RECIPE CARD ────────────────────────────────────────── */
+    .recipe-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .recipe-card:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); }
+
+    .card-accent { height: 4px; width: 100%; }
+
+    .card-body { padding: 1.1rem 1.3rem 1.3rem; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .card-emoji { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+
+    .card-meta {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+    .meta-pill {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg);
+      border: 1px solid var(--card-border);
+      border-radius: 100px;
+      padding: 0.2rem 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .card-hint {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--accent);
+      opacity: 0.8;
+    }
+
+    /* ─── DETAIL VIEW ────────────────────────────────────────── */
+    .detail-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: calc(0.7rem + env(safe-area-inset-top, 0px)) 1.25rem 0.7rem;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.35rem 0.6rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: rgba(194,65,12,0.08); }
+
+    .detail-hero {
+      padding: 2.5rem 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+    }
+    .detail-hero-emoji { font-size: 4rem; line-height: 1; }
+    .detail-hero-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.03em;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .detail-hero-meta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .detail-body {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    .detail-section {
+      margin-bottom: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.1rem 1.3rem;
+      box-shadow: var(--card-shadow);
+    }
+    .detail-description {
+      font-size: 0.97rem;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .section-label { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.75rem; }
+    .section-icon { font-size: 1rem; }
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    /* Ingredients list */
+    .ingredients-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .ingredients-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .ingredients-list li::before {
+      content: '·';
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.2rem;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    /* Steps list */
+    .steps-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .steps-list li {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .step-text {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.6;
+      padding-top: 0.15rem;
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .page { padding: 1.25rem 0.9rem 2.5rem; }
+      .page-header h1 { font-size: 1.5rem; }
+      .recipes-grid { grid-template-columns: 1fr; }
+      .detail-hero { padding: 2rem 1.25rem 1.75rem; }
+      .detail-hero-title { font-size: 1.7rem; }
+      .detail-body { padding: 1.25rem 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LIST VIEW -->
+<div class="view" id="view-list">
+  <div class="page">
+    <div class="page-header">
+      <h1>Resep</h1>
+      <p>Resep masakan yang sering dibuat di rumah</p>
+    </div>
+    <div id="recipes-list"></div>
+  </div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div class="view" id="view-detail" aria-hidden="true"></div>
+
+<script>
+  /* ─── RECIPE CATEGORIES ──────────────────────────────────────── */
+  const RECIPE_CATS = {
+    'makanan-utama': { label: 'Makanan Utama', emoji: '🍽️', color: '#c2410c' },
+    'salad':         { label: 'Salad',         emoji: '🥗', color: '#16a34a' },
+    'sayuran':       { label: 'Sayuran',       emoji: '🥦', color: '#2d8a4e' },
+    'lauk-pauk':     { label: 'Lauk Pauk',     emoji: '🍗', color: '#b45309' },
+    'minuman':       { label: 'Minuman',        emoji: '🥤', color: '#0369a1' },
+    'kue-camilan':   { label: 'Kue & Camilan',  emoji: '🍰', color: '#9333ea' },
+  };
+
+  /* ─── RECIPES DATA ───────────────────────────────────────────────
+     Untuk menambah resep baru: salin objek di bawah dan isi detailnya.
+  ──────────────────────────────────────────────────────────────── */
+  const RECIPES = [
+    {
+      id: 'salad-ayam-vietnam',
+      category: 'salad',
+      name: 'Salad Ayam Vietnam',
+      emoji: '🥗',
+      prepTime: '15 menit',
+      servings: '3–4 porsi',
+      description: 'Salad segar ala Vietnam dengan ayam, sayuran renyah, dan saus Nuoc Cham yang segar dan sedikit pedas.',
+      ingredients: [
+        // — Salad —
+        '350 g ayam matang, potong memanjang tipis seperti korek api (sekitar 2 dada ayam besar)',
+        '6 cangkir besar kol napa/kubis putih, iris tipis halus',
+        '½ bawang merah besar, iris sangat tipis',
+        '1 paprika merah, iris tipis memanjang',
+        '2 mentimun, buang bijinya, iris setengah lingkaran tipis',
+        '1 wortel besar, kupas dan iris korek api (julienne)',
+        '1 cabai besar, buang biji, iris tipis (opsional)',
+        '1 cangkir daun mint segar, sobek kasar',
+        '1 cangkir daun ketumbar/cilantro segar',
+        '½ cangkir kacang tanah goreng tanpa garam, cincang halus',
+        // — Saus Nuoc Cham —
+        '2 sdm perasan jeruk nipis',
+        '2 sdm cuka beras',
+        '4 sdm saus ikan (atau kecap asin biasa sebagai pengganti)',
+        '4 sdm minyak sayur / minyak canola',
+        '1 sdm gula putih',
+        '1 siung bawang putih besar, cincang sangat halus',
+        '2 sdt cabai merah, buang biji, cincang sangat halus',
+      ],
+      steps: [
+        'BUAT SAUS DULU: Masukkan semua bahan saus ke dalam botol kaca atau toples kecil, kocok hingga gula larut. Sisihkan minimal 10 menit agar rasa menyatu.',
+        'Siapkan semua sayuran — iris kol, paprika, mentimun, wortel, dan bawang merah. Potong ayam menjadi batangan tipis sepanjang korek api.',
+        'Masukkan semua bahan salad ke dalam mangkuk besar: kol, bawang merah, paprika, mentimun, wortel, cabai (jika pakai), daun mint, dan daun ketumbar.',
+        'Tambahkan potongan ayam ke dalam mangkuk.',
+        'Tuangkan SETENGAH saus ke atas salad, aduk rata. Diamkan 5 menit agar sayuran sedikit layu dan menyerap rasa.',
+        'Sebelum disajikan, aduk lagi dan tambahkan sisa saus sesuai selera — tambah semua jika suka rasa kuat, atau setengahnya saja jika ingin lebih ringan.',
+        'Taruh di piring saji dan taburi banyak kacang tanah cincang di atasnya.',
+        'Sajikan segera — salad ini paling enak dimakan langsung, tidak disimpan.',
+      ],
+    },
+  ];
+
+  /* ─── VIEW NAVIGATION ────────────────────────────────────────── */
+  function showDetail(recipeId) {
+    const recipe = RECIPES.find(r => r.id === recipeId);
+    renderDetailView(recipe);
+    document.getElementById('view-detail').scrollTop = 0;
+    document.getElementById('view-list').classList.add('slide-out');
+    document.getElementById('view-detail').classList.add('slide-in');
+    document.getElementById('view-detail').removeAttribute('aria-hidden');
+    document.getElementById('view-list').setAttribute('aria-hidden', 'true');
+  }
+
+  function showList() {
+    document.getElementById('view-list').classList.remove('slide-out');
+    document.getElementById('view-detail').classList.remove('slide-in');
+    document.getElementById('view-list').removeAttribute('aria-hidden');
+    document.getElementById('view-detail').setAttribute('aria-hidden', 'true');
+  }
+
+  /* ─── RENDER RECIPE CARD ─────────────────────────────────────── */
+  function renderCard(recipe) {
+    const cat = RECIPE_CATS[recipe.category] || { color: '#c2410c' };
+
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+    card.addEventListener('click', () => showDetail(recipe.id));
+
+    const accent = document.createElement('div');
+    accent.className = 'card-accent';
+    accent.style.background = cat.color;
+    card.appendChild(accent);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    body.innerHTML = `
+      <div class="card-header">
+        <div class="card-title">${recipe.name}</div>
+        <div class="card-emoji">${recipe.emoji}</div>
+      </div>
+      <div class="card-meta">
+        <span class="meta-pill">⏱ ${recipe.prepTime}</span>
+        <span class="meta-pill">🍽 ${recipe.servings}</span>
+      </div>
+      <p class="card-desc">${recipe.description}</p>
+      <div class="card-hint">Lihat resep →</div>
+    `;
+    card.appendChild(body);
+    return card;
+  }
+
+  /* ─── RENDER DETAIL VIEW ─────────────────────────────────────── */
+  function renderDetailView(recipe) {
+    const cat = RECIPE_CATS[recipe.category] || { color: '#c2410c', label: '' };
+    const detailView = document.getElementById('view-detail');
+    detailView.innerHTML = '';
+
+    /* Topbar */
+    const topbar = document.createElement('div');
+    topbar.className = 'detail-topbar';
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-btn';
+    backBtn.innerHTML = '← Resep';
+    backBtn.addEventListener('click', showList);
+    topbar.appendChild(backBtn);
+    detailView.appendChild(topbar);
+
+    /* Hero */
+    const hero = document.createElement('div');
+    hero.className = 'detail-hero';
+    hero.style.background = cat.color;
+    hero.innerHTML = `
+      <div class="detail-hero-emoji">${recipe.emoji}</div>
+      <h1 class="detail-hero-title">${recipe.name}</h1>
+      <div class="detail-hero-meta">
+        <div class="hero-meta-item">⏱ ${recipe.prepTime}</div>
+        <div class="hero-meta-item">🍽 ${recipe.servings}</div>
+      </div>
+    `;
+    detailView.appendChild(hero);
+
+    /* Body */
+    const body = document.createElement('div');
+    body.className = 'detail-body';
+
+    /* Description */
+    if (recipe.description) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      const p = document.createElement('p');
+      p.className = 'detail-description';
+      p.textContent = recipe.description;
+      sec.appendChild(p);
+      body.appendChild(sec);
+    }
+
+    /* Ingredients */
+    const ingSection = document.createElement('div');
+    ingSection.className = 'detail-section';
+    ingSection.innerHTML = `
+      <div class="section-label">
+        <span class="section-icon">🛒</span>
+        <span class="section-title">Bahan-bahan</span>
+      </div>
+    `;
+    const ingList = document.createElement('ul');
+    ingList.className = 'ingredients-list';
+    recipe.ingredients.forEach(ing => {
+      const li = document.createElement('li');
+      li.textContent = ing;
+      ingList.appendChild(li);
+    });
+    ingSection.appendChild(ingList);
+    body.appendChild(ingSection);
+
+    /* Steps */
+    const stepsSection = document.createElement('div');
+    stepsSection.className = 'detail-section';
+    stepsSection.innerHTML = `
+      <div class="section-label">
+        <span class="section-icon">👩‍🍳</span>
+        <span class="section-title">Cara Memasak</span>
+      </div>
+    `;
+    const stepsList = document.createElement('ol');
+    stepsList.className = 'steps-list';
+    recipe.steps.forEach((step, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="step-num" style="background:${cat.color}">${i + 1}</div>
+        <div class="step-text">${step}</div>
+      `;
+      stepsList.appendChild(li);
+    });
+    stepsSection.appendChild(stepsList);
+    body.appendChild(stepsSection);
+
+    detailView.appendChild(body);
+  }
+
+  /* ─── BOOTSTRAP ──────────────────────────────────────────────── */
+  const listEl = document.getElementById('recipes-list');
+  const grouped = {};
+  RECIPES.forEach(r => {
+    if (!grouped[r.category]) grouped[r.category] = [];
+    grouped[r.category].push(r);
+  });
+
+  Object.entries(grouped).forEach(([catKey, recipes]) => {
+    const cat = RECIPE_CATS[catKey] || { label: catKey, emoji: '🍴', color: '#c2410c' };
+    const group = document.createElement('div');
+    group.className = 'recipe-group';
+
+    const header = document.createElement('div');
+    header.className = 'recipe-group-header';
+    header.style.borderBottomColor = cat.color;
+    header.innerHTML = `<span>${cat.emoji}</span><span class="cat-label" style="color:${cat.color}">${cat.label}</span>`;
+    group.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'recipes-grid';
+    recipes.forEach(r => grid.appendChild(renderCard(r)));
+    group.appendChild(grid);
+
+    listEl.appendChild(group);
+  });
+</script>
+
+</body>
+</html>

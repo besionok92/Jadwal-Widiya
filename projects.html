@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Proyek</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --bg: #f0f6fc;
+      --text: #1a3a5c;
+      --text-muted: #6b7f94;
+      --card-bg: #ffffff;
+      --card-border: rgba(26, 111, 168, 0.1);
+      --card-shadow: 0 2px 12px rgba(26, 111, 168, 0.08);
+      --card-shadow-hover: 0 6px 24px rgba(26, 111, 168, 0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ─── VIEWS ──────────────────────────────────────────────── */
+
+    .view {
+      position: fixed;
+      inset: 0;
+      overflow-y: auto;
+      background: var(--bg);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity  0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    #view-list { transform: translateX(0); opacity: 1; }
+    #view-list.slide-out { transform: translateX(-28%); opacity: 0.55; pointer-events: none; }
+    #view-detail { transform: translateX(100%); opacity: 0; pointer-events: none; }
+    #view-detail.slide-in { transform: translateX(0); opacity: 1; pointer-events: auto; }
+
+    @media (prefers-reduced-motion: reduce) { .view { transition: none; } }
+
+    /* ─── LIST VIEW ──────────────────────────────────────────── */
+
+    .page {
+      min-height: 100%;
+      padding: 2rem 1.5rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+    .page-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    /* Category group headers */
+    .category-group { margin-bottom: 2rem; }
+    .category-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid;
+    }
+    .category-group-header .cat-icon { font-size: 1rem; }
+    .category-group-header .cat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ─── CARD ───────────────────────────────────────────────── */
+
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .project-card:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-1px); }
+
+    .card-accent { height: 4px; width: 100%; }
+
+    .card-body { padding: 1.1rem 1.3rem 1.3rem; }
+
+    .card-clickable {
+      cursor: pointer;
+      border-radius: 8px;
+      margin: -0.35rem -0.35rem 0.75rem;
+      padding: 0.35rem;
+      transition: background 0.12s;
+    }
+    .card-clickable:hover { background: #f4f8fc; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .card-emoji { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+
+    .card-desc-preview {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.6rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-open-hint {
+      font-size: 0.72rem;
+      font-weight: 500;
+      margin-bottom: 0.55rem;
+      opacity: 0.85;
+    }
+
+    /* Progress */
+    .progress-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.9rem; }
+    .progress-bar-track {
+      flex: 1; height: 6px;
+      background: #e8f0f7;
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .progress-bar-fill { height: 100%; border-radius: 100px; transition: width 0.3s ease; }
+    .progress-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+
+    /* ─── CHECKLIST ──────────────────────────────────────────── */
+
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+
+    .checklist li label {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      cursor: pointer;
+      padding: 0.45rem 0.55rem;
+      border-radius: 8px;
+      transition: background 0.12s;
+      user-select: none;
+    }
+    .checklist li label:hover { background: #f4f8fc; }
+
+    .checklist li input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 19px;
+      height: 19px;
+      border: 2px solid #c5d8e8;
+      border-radius: 5px;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .checklist li input[type="checkbox"]:checked { border-color: transparent; }
+    .checklist li input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 5px;
+      width: 5px; height: 8px;
+      border: 2px solid white;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .task-text {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+      transition: color 0.15s;
+    }
+    .checklist li.done .task-text { text-decoration: line-through; color: var(--text-muted); }
+
+    /* Subtasks */
+    .subtask-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      margin: 0.2rem 0 0.2rem 2.1rem;
+    }
+    .subtask-list li label {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      padding: 0.3rem 0.45rem;
+      border-radius: 6px;
+      transition: background 0.12s;
+      user-select: none;
+    }
+    .subtask-list li label:hover { background: #f4f8fc; }
+    .subtask-list li input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #c5d8e8;
+      border-radius: 4px;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .subtask-list li input[type="checkbox"]:checked { border-color: transparent; }
+    .subtask-list li input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 4px;
+      width: 4px; height: 7px;
+      border: 2px solid white;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+    .subtask-text {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      line-height: 1.4;
+      transition: color 0.15s;
+    }
+    .subtask-list li.done .subtask-text { text-decoration: line-through; opacity: 0.6; }
+
+    /* Parent task when has subtasks */
+    .task-parent-cb {
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      width: 19px !important;
+      height: 19px !important;
+      border: 2px solid #c5d8e8 !important;
+      border-radius: 5px !important;
+      flex-shrink: 0 !important;
+      position: relative !important;
+      cursor: default !important;
+      transition: background 0.15s, border-color 0.15s !important;
+      pointer-events: none;
+    }
+    .task-parent-cb.partial {
+      background: rgba(180,180,200,0.25);
+    }
+    .task-parent-cb.complete { border-color: transparent !important; }
+    .task-parent-cb.complete::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 5px;
+      width: 5px; height: 8px;
+      border: 2px solid white;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+
+    /* All-done banner */
+    .all-done-banner {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f0faf4;
+      border: 1px solid #a8dbbe;
+      border-radius: 10px;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2a7a4b;
+      margin-bottom: 1rem;
+    }
+    .all-done-banner.visible { display: flex; }
+
+    /* Reset button */
+    .reset-btn {
+      background: none;
+      border: 1px solid #d0dce8;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.4rem 0.9rem;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .reset-btn:hover { background: #f0f6fc; color: var(--text); border-color: #b0c8de; }
+
+    /* ─── DETAIL VIEW ────────────────────────────────────────── */
+
+    .detail-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: calc(0.7rem + env(safe-area-inset-top, 0px)) 1.25rem 0.7rem;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.35rem 0.6rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: rgba(26,111,168,0.08); }
+
+    .detail-hero {
+      padding: 2.5rem 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.4rem;
+    }
+    .detail-hero-emoji { font-size: 3.5rem; line-height: 1; }
+    .detail-hero-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.03em;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+    .detail-hero-cat {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.75);
+      margin-top: 0.1rem;
+    }
+    .detail-hero-progress {
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 280px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .detail-hero-progress .progress-bar-track { background: rgba(255,255,255,0.3); }
+    .detail-hero-progress .progress-bar-fill { background: white; }
+    .detail-hero-progress .progress-label { color: rgba(255,255,255,0.9); }
+
+    .detail-body {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    .detail-section {
+      margin-bottom: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.1rem 1.3rem;
+      box-shadow: var(--card-shadow);
+    }
+    .detail-description { font-size: 0.97rem; color: var(--text); line-height: 1.7; }
+
+    .section-label { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.5rem; }
+    .section-icon { font-size: 1rem; line-height: 1; }
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    .section-content { font-size: 0.95rem; color: var(--text); line-height: 1.65; }
+    .section-content.warning {
+      color: #b45309;
+      font-weight: 500;
+    }
+
+    .detail-divider { height: 1px; background: var(--card-border); margin: 1.5rem 0 1.25rem; }
+    .detail-tasks-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────── */
+
+    @media (max-width: 480px) {
+      .page { padding: 1.25rem 0.9rem 2.5rem; }
+      .page-header h1 { font-size: 1.5rem; }
+      .cards-row { grid-template-columns: 1fr; }
+      .detail-hero { padding: 2rem 1.25rem 1.75rem; }
+      .detail-hero-title { font-size: 1.7rem; }
+      .detail-body { padding: 1.25rem 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LIST VIEW -->
+<div class="view" id="view-list">
+  <div class="page">
+    <div class="page-header">
+      <h1>Proyek</h1>
+      <p>Tugas dan proyek khusus untuk Widiya</p>
+    </div>
+    <div id="projects-list"></div>
+  </div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div class="view" id="view-detail" aria-hidden="true"></div>
+
+<script>
+  /* ─── CATEGORIES ─────────────────────────────────────────────
+     Warna sesuai dengan blok di jadwal mingguan.
+  ──────────────────────────────────────────────────────────────── */
+  const CATEGORIES = {
+    garden: {
+      label: 'Kebun',
+      emoji: '🌿',
+      color: '#2a7a4b',       // dark green accent
+      lightBg: '#d1f0db',     // light green bg for badge
+      borderColor: '#2a7a4b',
+      hintColor: '#2a7a4b',
+    },
+    project: {
+      label: 'Proyek',
+      emoji: '📦',
+      color: '#7C3AED',
+      lightBg: '#ede9fe',
+      borderColor: '#7C3AED',
+      hintColor: '#7C3AED',
+    },
+    upskilling: {
+      label: 'Belajar',
+      emoji: '📚',
+      color: '#b45309',
+      lightBg: '#fef3c7',
+      borderColor: '#b45309',
+      hintColor: '#b45309',
+    },
+    cooking: {
+      label: 'Memasak',
+      emoji: '🍳',
+      color: '#c2410c',
+      lightBg: '#ffedd5',
+      borderColor: '#c2410c',
+      hintColor: '#c2410c',
+    },
+  };
+
+  /* ─── PROJECTS DATA ──────────────────────────────────────────
+     Untuk menambah proyek baru: salin objek di bawah dan isi detailnya.
+     tasks bisa berupa string biasa, atau objek { text, subtasks: [] }.
+  ──────────────────────────────────────────────────────────────── */
+  const PROJECTS = [
+    {
+      id: 'tanam-bunga',
+      category: 'garden',
+      title: 'Tanam Bunga',
+      emoji: '🌸',
+      description: 'Tanam dan rawat bunga di area kebun untuk membuat rumah lebih indah dan penuh warna.',
+      goal: 'Punya minimal 3 pot bunga yang sehat dan mekar pada akhir Mei 2026.',
+      timeline: 'April – Mei 2026',
+      notes: 'Siram di pagi hari sebelum matahari terlalu terik. Periksa bagian bawah daun untuk hama setiap 3 hari sekali.',
+      tasks: [
+        'Beli benih bunga di toko tanaman atau pasar',
+        {
+          text: 'Cari lokasi terbaik untuk menanam',
+          subtasks: [
+            'Amati area taman di pagi hari (07.00–09.00) — catat mana yang kena matahari',
+            'Amati area taman di siang hari (12.00–14.00) — catat mana yang paling terang',
+            'Gunakan aplikasi Sun Surveyor atau kompas HP untuk cek arah matahari',
+            'Pilih lokasi yang kena matahari cukup (tidak terlalu panas, tidak terlalu teduh)',
+          ],
+        },
+        'Siapkan tanah dan pot yang sesuai',
+        'Tanam benih sesuai petunjuk di bungkus',
+        'Siram setiap pagi hari secara rutin',
+        'Periksa hama dan daun yang rusak setiap beberapa hari',
+      ],
+    },
+    {
+      id: 'bonsai',
+      category: 'garden',
+      title: 'Bonsai',
+      emoji: '🌳',
+      description: 'Beli bonsai dan pelajari cara merawatnya agar tumbuh sehat dan indah di rumah.',
+      goal: 'Bonsai tumbuh sehat dan diletakkan di tempat terbaik dalam waktu 1 bulan.',
+      timeline: 'April – Mei 2026',
+      notes: 'Pilih bonsai yang sudah berumur beberapa tahun agar lebih mudah dirawat. Tanyakan kepada penjual cara perawatan dasar: berapa kali siram, pupuk apa, dll.',
+      tasks: [
+        'Cari informasi jenis bonsai yang cocok untuk rumah ini (dalam/luar ruangan)',
+        'Beli bonsai di toko tanaman atau pameran tanaman',
+        {
+          text: 'Cari tempat terbaik untuk bonsai',
+          subtasks: [
+            'Cek cahaya di berbagai sudut rumah dan teras',
+            'Pastikan lokasi tidak kena angin langsung yang kencang',
+            'Coba letakkan di teras selama 2 hari, amati kondisinya',
+            'Pilih lokasi akhir yang paling sesuai',
+          ],
+        },
+        'Pelajari cara menyiram bonsai yang benar (tidak terlalu banyak/sedikit)',
+        'Pelajari cara memangkas ranting bonsai',
+        'Buat jadwal perawatan rutin mingguan',
+      ],
+    },
+    {
+      id: 'membuat-lilin',
+      category: 'project',
+      title: 'Membuat Lilin',
+      emoji: '🕯️',
+      description: 'Belajar membuat lilin sendiri di rumah dari bahan-bahan sederhana yang mudah didapat.',
+      goal: 'Berhasil membuat minimal 3 lilin yang cantik dan siap dipakai di rumah.',
+      timeline: 'Mei 2026',
+      notes: '⚠️ Selalu hati-hati saat melelehkan lilin — gunakan panci khusus, api kecil, dan jangan pernah tinggalkan wajan tanpa pengawasan.',
+      tasks: [
+        'Tonton tutorial membuat lilin di YouTube (cari: "cara membuat lilin rumahan")',
+        {
+          text: 'Beli semua bahan yang dibutuhkan',
+          subtasks: [
+            'Lilin paraffin atau minyak kedelai (soy wax)',
+            'Sumbu lilin (wick) — beli yang sudah ada penyangga bawahnya',
+            'Pewarna lilin (opsional)',
+            'Pewangi / essential oil (opsional)',
+            'Cetakan: bisa pakai gelas kaca, kaleng bekas, atau cetakan khusus',
+          ],
+        },
+        'Siapkan area kerja yang bersih, rata, dan aman',
+        'Lelehkan lilin di panci khusus dengan api kecil — pantau terus',
+        'Tambahkan pewarna dan pewangi jika mau, aduk perlahan',
+        'Tuangkan ke cetakan, pasang sumbu di tengah, tahan dengan tusuk sate',
+        'Tunggu hingga mengeras sempurna (minimal 24 jam — jangan dipindah)',
+        'Uji coba nyalakan lilin pertama dan lihat hasilnya',
+      ],
+    },
+    {
+      id: 'belajar-listrik',
+      category: 'upskilling',
+      title: 'Belajar Listrik Dasar',
+      emoji: '⚡',
+      description: 'Pelajari dasar-dasar kelistrikan rumah tangga agar bisa membantu menangani masalah listrik yang sederhana.',
+      goal: 'Memahami cara mengganti lampu, mengenal panel MCB, dan tidak takut dengan instalasi listrik dasar.',
+      timeline: 'April – Juni 2026',
+      notes: '⚠️ KESELAMATAN PALING UTAMA: Selalu matikan listrik dari panel MCB sebelum menyentuh kabel apapun. Jangan pernah bekerja dengan listrik yang masih menyala.',
+      tasks: [
+        'Tonton video pengantar listrik rumah tangga di YouTube',
+        {
+          text: 'Kenali bagian-bagian panel listrik (MCB) di rumah',
+          subtasks: [
+            'Temukan lokasi panel MCB di rumah',
+            'Pelajari fungsi masing-masing saklar MCB',
+            'Coba matikan dan nyalakan satu per satu, lihat area mana yang terpengaruh',
+          ],
+        },
+        {
+          text: 'Pelajari jenis-jenis kabel listrik',
+          subtasks: [
+            'Kabel fase (biasanya hitam atau merah) — kabel bertegangan',
+            'Kabel netral (biasanya biru) — kabel kembali ke panel',
+            'Kabel grounding (kuning-hijau) — kabel pengaman',
+          ],
+        },
+        'Pelajari dan praktik cara mengganti bohlam/lampu yang mati dengan aman',
+        'Pelajari cara mengganti stop kontak yang rusak',
+        'Pelajari cara membaca tagihan listrik PLN dan pahami arti kWh',
+      ],
+    },
+  ];
+
+  /* ─── LOCALSTORAGE HELPERS ───────────────────────────────────── */
+  function lsKey(projectId, taskIdx, subIdx) {
+    if (subIdx == null) return `proj-${projectId}-${taskIdx}`;
+    return `proj-${projectId}-${taskIdx}-s${subIdx}`;
+  }
+  function getChecked(projectId, taskIdx, subIdx) {
+    return localStorage.getItem(lsKey(projectId, taskIdx, subIdx)) === '1';
+  }
+  function setChecked(projectId, taskIdx, subIdx, val) {
+    localStorage.setItem(lsKey(projectId, taskIdx, subIdx), val ? '1' : '0');
+  }
+
+  /* Count all leaf tasks and how many are done */
+  function getProgress(project) {
+    let total = 0, done = 0;
+    project.tasks.forEach((task, i) => {
+      if (typeof task === 'string') {
+        total++;
+        if (getChecked(project.id, i, null)) done++;
+      } else {
+        task.subtasks.forEach((_, j) => {
+          total++;
+          if (getChecked(project.id, i, j)) done++;
+        });
+      }
+    });
+    return { total, done };
+  }
+
+  /* ─── VIEW NAVIGATION ────────────────────────────────────────── */
+  function showDetail(projectId) {
+    const project = PROJECTS.find(p => p.id === projectId);
+    renderDetailView(project);
+    document.getElementById('view-detail').scrollTop = 0;
+    document.getElementById('view-list').classList.add('slide-out');
+    document.getElementById('view-detail').classList.add('slide-in');
+    document.getElementById('view-detail').removeAttribute('aria-hidden');
+    document.getElementById('view-list').setAttribute('aria-hidden', 'true');
+  }
+
+  function showList() {
+    document.getElementById('view-list').classList.remove('slide-out');
+    document.getElementById('view-detail').classList.remove('slide-in');
+    document.getElementById('view-list').removeAttribute('aria-hidden');
+    document.getElementById('view-detail').setAttribute('aria-hidden', 'true');
+  }
+
+  /* ─── BUILD CHECKLIST ────────────────────────────────────────── */
+  function buildChecklist(project, onUpdate) {
+    const ul = document.createElement('ul');
+    ul.className = 'checklist';
+    const cat = CATEGORIES[project.category];
+
+    project.tasks.forEach((task, i) => {
+      const isSimple = typeof task === 'string';
+
+      const li = document.createElement('li');
+
+      if (isSimple) {
+        /* Simple task */
+        const lbl = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = getChecked(project.id, i, null);
+        if (cb.checked) cb.style.background = cat.color;
+        cb.addEventListener('change', () => {
+          setChecked(project.id, i, null, cb.checked);
+          cb.style.background = cb.checked ? cat.color : '';
+          onUpdate();
+        });
+        const span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = task;
+        lbl.appendChild(cb);
+        lbl.appendChild(span);
+        li.appendChild(lbl);
+        if (cb.checked) li.classList.add('done');
+
+      } else {
+        /* Task with subtasks */
+        const lbl = document.createElement('label');
+        lbl.style.cursor = 'default';
+
+        const parentCb = document.createElement('div');
+        parentCb.className = 'task-parent-cb';
+
+        const span = document.createElement('span');
+        span.className = 'task-text';
+        span.textContent = task.text;
+
+        lbl.appendChild(parentCb);
+        lbl.appendChild(span);
+        li.appendChild(lbl);
+
+        /* Subtask list */
+        const subUl = document.createElement('ul');
+        subUl.className = 'subtask-list';
+
+        task.subtasks.forEach((subText, j) => {
+          const subLi = document.createElement('li');
+          const subLbl = document.createElement('label');
+          const subCb = document.createElement('input');
+          subCb.type = 'checkbox';
+          subCb.checked = getChecked(project.id, i, j);
+          if (subCb.checked) subCb.style.background = cat.color;
+
+          subCb.addEventListener('change', () => {
+            setChecked(project.id, i, j, subCb.checked);
+            subCb.style.background = subCb.checked ? cat.color : '';
+            if (subCb.checked) subLi.classList.add('done');
+            else subLi.classList.remove('done');
+            updateParentCb();
+            onUpdate();
+          });
+
+          const subSpan = document.createElement('span');
+          subSpan.className = 'subtask-text';
+          subSpan.textContent = subText;
+
+          subLbl.appendChild(subCb);
+          subLbl.appendChild(subSpan);
+          subLi.appendChild(subLbl);
+          if (subCb.checked) subLi.classList.add('done');
+          subUl.appendChild(subLi);
+        });
+
+        li.appendChild(subUl);
+
+        function updateParentCb() {
+          const subs = subUl.querySelectorAll('input[type="checkbox"]');
+          const doneCount = [...subs].filter(c => c.checked).length;
+          if (doneCount === 0) {
+            parentCb.classList.remove('partial', 'complete');
+            parentCb.style.background = '';
+          } else if (doneCount < subs.length) {
+            parentCb.classList.add('partial');
+            parentCb.classList.remove('complete');
+            parentCb.style.background = '';
+          } else {
+            parentCb.classList.remove('partial');
+            parentCb.classList.add('complete');
+            parentCb.style.background = cat.color;
+            li.classList.add('done');
+          }
+          if (doneCount < subs.length) li.classList.remove('done');
+        }
+
+        updateParentCb();
+      }
+
+      ul.appendChild(li);
+    });
+
+    return ul;
+  }
+
+  /* ─── RENDER CARD ────────────────────────────────────────────── */
+  function renderCard(project) {
+    const cat = CATEGORIES[project.category];
+
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    card.id = `card-${project.id}`;
+
+    const accent = document.createElement('div');
+    accent.className = 'card-accent';
+    accent.style.background = cat.color;
+    card.appendChild(accent);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    /* Clickable area → opens detail */
+    const clickable = document.createElement('div');
+    clickable.className = 'card-clickable';
+    clickable.addEventListener('click', () => showDetail(project.id));
+
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    const titleEl = document.createElement('div');
+    titleEl.className = 'card-title';
+    titleEl.textContent = project.title;
+    const emojiEl = document.createElement('div');
+    emojiEl.className = 'card-emoji';
+    emojiEl.textContent = project.emoji;
+    header.appendChild(titleEl);
+    header.appendChild(emojiEl);
+    clickable.appendChild(header);
+
+    if (project.description) {
+      const desc = document.createElement('p');
+      desc.className = 'card-desc-preview';
+      desc.textContent = project.description;
+      clickable.appendChild(desc);
+    }
+
+    const hint = document.createElement('div');
+    hint.className = 'card-open-hint';
+    hint.style.color = cat.hintColor;
+    hint.textContent = 'Buka proyek →';
+    clickable.appendChild(hint);
+
+    /* Progress row */
+    const progressRow = document.createElement('div');
+    progressRow.className = 'progress-row';
+    const track = document.createElement('div');
+    track.className = 'progress-bar-track';
+    const fill = document.createElement('div');
+    fill.className = 'progress-bar-fill';
+    fill.style.background = cat.color;
+    track.appendChild(fill);
+    const label = document.createElement('span');
+    label.className = 'progress-label';
+    progressRow.appendChild(track);
+    progressRow.appendChild(label);
+    clickable.appendChild(progressRow);
+
+    body.appendChild(clickable);
+
+    /* All-done banner */
+    const banner = document.createElement('div');
+    banner.className = 'all-done-banner';
+    banner.innerHTML = '<span>✅</span><span>Semua selesai — kerja bagus!</span>';
+    body.appendChild(banner);
+
+    /* Checklist */
+    function updateCard() {
+      const { total, done } = getProgress(project);
+      fill.style.width = (total ? done / total * 100 : 0) + '%';
+      label.textContent = `${done} / ${total}`;
+      banner.classList.toggle('visible', done === total && total > 0);
+    }
+
+    const ul = buildChecklist(project, updateCard);
+    body.appendChild(ul);
+
+    /* Reset */
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'reset-btn';
+    resetBtn.textContent = 'Reset';
+    resetBtn.addEventListener('click', () => {
+      project.tasks.forEach((task, i) => {
+        if (typeof task === 'string') {
+          setChecked(project.id, i, null, false);
+        } else {
+          task.subtasks.forEach((_, j) => setChecked(project.id, i, j, false));
+        }
+      });
+      /* Re-render card checklist */
+      const newUl = buildChecklist(project, updateCard);
+      ul.replaceWith(newUl);
+      updateCard();
+    });
+    body.appendChild(resetBtn);
+
+    card.appendChild(body);
+    updateCard();
+    return card;
+  }
+
+  /* ─── RENDER DETAIL VIEW ─────────────────────────────────────── */
+  function renderDetailView(project) {
+    const cat = CATEGORIES[project.category];
+    const detailView = document.getElementById('view-detail');
+    detailView.innerHTML = '';
+
+    /* Sticky topbar */
+    const topbar = document.createElement('div');
+    topbar.className = 'detail-topbar';
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-btn';
+    backBtn.innerHTML = '← Proyek';
+    backBtn.addEventListener('click', showList);
+    topbar.appendChild(backBtn);
+    detailView.appendChild(topbar);
+
+    /* Hero */
+    const hero = document.createElement('div');
+    hero.className = 'detail-hero';
+    hero.style.background = cat.color;
+    hero.innerHTML = `
+      <div class="detail-hero-emoji">${project.emoji}</div>
+      <h1 class="detail-hero-title">${project.title}</h1>
+      <div class="detail-hero-cat">${cat.emoji} ${cat.label}</div>
+    `;
+
+    const heroProgress = document.createElement('div');
+    heroProgress.className = 'detail-hero-progress';
+    const hpTrack = document.createElement('div');
+    hpTrack.className = 'progress-bar-track';
+    const hpFill = document.createElement('div');
+    hpFill.className = 'progress-bar-fill';
+    hpTrack.appendChild(hpFill);
+    const hpLabel = document.createElement('span');
+    hpLabel.className = 'progress-label';
+    heroProgress.appendChild(hpTrack);
+    heroProgress.appendChild(hpLabel);
+    hero.appendChild(heroProgress);
+    detailView.appendChild(hero);
+
+    /* Body */
+    const body = document.createElement('div');
+    body.className = 'detail-body';
+
+    if (project.description) {
+      const sec = document.createElement('div');
+      sec.className = 'detail-section';
+      const p = document.createElement('p');
+      p.className = 'detail-description';
+      p.textContent = project.description;
+      sec.appendChild(p);
+      body.appendChild(sec);
+    }
+    if (project.goal) body.appendChild(makeSection('🏆', 'Tujuan', project.goal));
+    if (project.timeline) body.appendChild(makeSection('📅', 'Jadwal', project.timeline));
+    if (project.notes) {
+      const isWarning = project.notes.startsWith('⚠️');
+      const sec = makeSection('📝', 'Catatan', project.notes);
+      if (isWarning) sec.querySelector('.section-content').classList.add('warning');
+      body.appendChild(sec);
+    }
+
+    const divider = document.createElement('div');
+    divider.className = 'detail-divider';
+    body.appendChild(divider);
+
+    const tasksHeading = document.createElement('div');
+    tasksHeading.className = 'detail-tasks-heading';
+    tasksHeading.textContent = 'Tugas';
+    body.appendChild(tasksHeading);
+
+    const doneBanner = document.createElement('div');
+    doneBanner.className = 'all-done-banner';
+    doneBanner.innerHTML = '<span>✅</span><span>Semua selesai — kerja bagus!</span>';
+    body.appendChild(doneBanner);
+
+    function updateDetail() {
+      const { total, done } = getProgress(project);
+      hpFill.style.width = (total ? done / total * 100 : 0) + '%';
+      hpLabel.textContent = `${done} / ${total}`;
+      doneBanner.classList.toggle('visible', done === total && total > 0);
+      syncCard(project);
+    }
+
+    const ul = buildChecklist(project, updateDetail);
+    body.appendChild(ul);
+
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'reset-btn';
+    resetBtn.textContent = 'Reset semua tugas';
+    resetBtn.addEventListener('click', () => {
+      project.tasks.forEach((task, i) => {
+        if (typeof task === 'string') {
+          setChecked(project.id, i, null, false);
+        } else {
+          task.subtasks.forEach((_, j) => setChecked(project.id, i, j, false));
+        }
+      });
+      const newUl = buildChecklist(project, updateDetail);
+      ul.replaceWith(newUl);
+      updateDetail();
+    });
+    body.appendChild(resetBtn);
+
+    detailView.appendChild(body);
+    updateDetail();
+  }
+
+  function makeSection(icon, label, content) {
+    const section = document.createElement('div');
+    section.className = 'detail-section';
+    section.innerHTML = `
+      <div class="section-label">
+        <span class="section-icon">${icon}</span>
+        <span class="section-title">${label}</span>
+      </div>
+      <p class="section-content">${content}</p>
+    `;
+    return section;
+  }
+
+  /* Sync card after editing in detail view */
+  function syncCard(project) {
+    const card = document.getElementById(`card-${project.id}`);
+    if (!card) return;
+    const cat = CATEGORIES[project.category];
+    const { total, done } = getProgress(project);
+    const fill = card.querySelector('.progress-bar-fill');
+    const label = card.querySelector('.progress-label');
+    const banner = card.querySelector('.all-done-banner');
+    if (fill) fill.style.width = (total ? done / total * 100 : 0) + '%';
+    if (label) label.textContent = `${done} / ${total}`;
+    if (banner) banner.classList.toggle('visible', done === total && total > 0);
+  }
+
+  /* ─── BOOTSTRAP ──────────────────────────────────────────────── */
+
+  /* Group projects by category and render */
+  const listEl = document.getElementById('projects-list');
+  const grouped = {};
+  PROJECTS.forEach(p => {
+    if (!grouped[p.category]) grouped[p.category] = [];
+    grouped[p.category].push(p);
+  });
+
+  Object.entries(grouped).forEach(([catKey, projects]) => {
+    const cat = CATEGORIES[catKey];
+
+    const group = document.createElement('div');
+    group.className = 'category-group';
+
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'category-group-header';
+    groupHeader.style.borderBottomColor = cat.color;
+    groupHeader.innerHTML = `
+      <span class="cat-icon">${cat.emoji}</span>
+      <span class="cat-label" style="color:${cat.color}">${cat.label}</span>
+    `;
+    group.appendChild(groupHeader);
+
+    const row = document.createElement('div');
+    row.className = 'cards-row';
+    projects.forEach(p => row.appendChild(renderCard(p)));
+    group.appendChild(row);
+
+    listEl.appendChild(group);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklist</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --bg: #f0f6fc;
+      --text: #1a3a5c;
+      --text-muted: #6b7f94;
+      --accent: #2a6fa8;
+      --accent-light: #e8f2fb;
+      --card-bg: #ffffff;
+      --card-border: rgba(26, 111, 168, 0.1);
+      --card-shadow: 0 2px 12px rgba(26, 111, 168, 0.08);
+      --done-color: #a0b4c8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ─── LAYOUT ─────────────────────────────────────────────── */
+    .page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 6rem;
+      min-height: 100%;
+    }
+
+    .page-header { margin-bottom: 1.75rem; }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+    .page-header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ─── ADD ITEM INPUT ─────────────────────────────────────── */
+    .add-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      padding: 0.75rem 0;
+      z-index: 10;
+    }
+
+    .add-input {
+      flex: 1;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      outline: none;
+      box-shadow: var(--card-shadow);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .add-input::placeholder { color: var(--text-muted); font-weight: 400; }
+    .add-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(42, 111, 168, 0.12);
+    }
+
+    .add-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: white;
+      background: var(--accent);
+      border: none;
+      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(42, 111, 168, 0.3);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      line-height: 1;
+    }
+    .add-btn:hover { background: #1e5c8f; box-shadow: 0 4px 14px rgba(42,111,168,0.35); }
+    .add-btn:active { transform: scale(0.94); }
+
+    /* ─── STATS BAR ──────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      min-height: 1.5rem;
+    }
+    .stats-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .clear-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid var(--card-border);
+      border-radius: 100px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      display: none;
+    }
+    .clear-btn.visible { display: block; }
+    .clear-btn:hover { color: #c0392b; border-color: #f5a5a0; background: #fff5f5; }
+
+    /* ─── LIST ───────────────────────────────────────────────── */
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      box-shadow: var(--card-shadow);
+      transition: opacity 0.2s;
+      animation: slideIn 0.18s ease;
+    }
+    .checklist-item.done { opacity: 0.6; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom checkbox */
+    .item-cb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #c5d8e8;
+      border-radius: 6px;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .item-cb:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .item-cb:checked::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 6px;
+      width: 6px; height: 10px;
+      border: 2px solid white;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .item-text {
+      flex: 1;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+      word-break: break-word;
+      transition: color 0.15s, text-decoration 0.15s;
+    }
+    .checklist-item.done .item-text {
+      text-decoration: line-through;
+      color: var(--done-color);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #c5d8e8;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0.2rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: color 0.15s, background 0.15s;
+    }
+    .delete-btn:hover { color: #c0392b; background: #fff0ef; }
+
+    /* ─── EMPTY STATE ────────────────────────────────────────── */
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .empty-state.visible { display: flex; }
+    .empty-state .empty-icon { font-size: 3rem; opacity: 0.35; }
+    .empty-state p { font-size: 0.9rem; line-height: 1.5; max-width: 260px; }
+
+    /* ─── SYNC STATUS DOT ───────────────────────────────────────── */
+    .sync-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #c5d8e8;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .sync-status.synced  { background: #4ade80; }
+    .sync-status.saving  { background: #fb923c; animation: pulse 0.8s infinite; }
+    .sync-status.error   { background: #f87171; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .page { padding: 1.25rem 1rem 5rem; }
+      .page-header h1 { font-size: 1.5rem; }
+    }
+    /* ─── DRAG HANDLE ────────────────────────────────────────── */
+    .drag-handle {
+      color: #c5d8e8;
+      font-size: 1.1rem;
+      cursor: grab;
+      flex-shrink: 0;
+      padding: 0.1rem 0.15rem;
+      border-radius: 4px;
+      line-height: 1;
+      touch-action: none;
+      transition: color 0.15s;
+      user-select: none;
+    }
+    .drag-handle:hover { color: var(--accent); }
+    .checklist-item.sortable-ghost {
+      opacity: 0.35;
+      background: var(--accent-light);
+    }
+    .checklist-item.sortable-chosen { cursor: grabbing; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="page-header">
+    <h1>Checklist</h1>
+    <p>Tulis tugas, ketuk untuk selesai</p>
+  </div>
+
+  <!-- Add item -->
+  <div class="add-row">
+    <input
+      class="add-input"
+      id="add-input"
+      type="text"
+      placeholder="Tambah item baru…"
+      autocomplete="off"
+      maxlength="200"
+    >
+    <button class="add-btn" id="add-btn" title="Tambah">+</button>
+  </div>
+
+  <!-- Stats + clear -->
+  <div class="stats-bar">
+    <span class="stats-label" id="stats-label"></span>
+    <div style="display:flex;align-items:center;gap:0.6rem;">
+      <span class="sync-status" id="sync-status" title=""></span>
+      <button class="clear-btn" id="clear-btn">Hapus yang selesai</button>
+    </div>
+  </div>
+
+  <!-- List -->
+  <ul class="checklist" id="checklist"></ul>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="empty-state">
+    <div class="empty-icon">✅</div>
+    <p>Belum ada item. Tambah sesuatu di atas!</p>
+  </div>
+
+</div>
+
+<script>
+  const DB = 'https://widiya-b2c41-default-rtdb.asia-southeast1.firebasedatabase.app/checklist.json';
+  const LS_KEY = 'widiya-checklist-cache';
+
+  /* ─── STATE ──────────────────────────────────────────────────── */
+  let items = [];
+  let isSaving = false; // suppress SSE echo during our own saves
+
+  /* ─── DOM REFS ───────────────────────────────────────────────── */
+  const listEl   = document.getElementById('checklist');
+  const emptyEl  = document.getElementById('empty-state');
+  const statsEl  = document.getElementById('stats-label');
+  const clearBtn = document.getElementById('clear-btn');
+  const syncDot  = document.getElementById('sync-status');
+  const input    = document.getElementById('add-input');
+  const addBtn   = document.getElementById('add-btn');
+
+  /* ─── SYNC STATUS ────────────────────────────────────────────── */
+  function setStatus(state, title = '') {
+    syncDot.className = 'sync-status ' + state;
+    syncDot.title = { synced: 'Tersinkron', saving: 'Menyimpan…', error: 'Gagal tersinkron', '': 'Menghubungkan…' }[state] || '';
+  }
+
+  /* ─── FIREBASE SAVE ──────────────────────────────────────────── */
+  async function saveToFirebase() {
+    isSaving = true;
+    setStatus('saving');
+    try {
+      await fetch(DB, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(items),
+      });
+      // cache locally as backup
+      localStorage.setItem(LS_KEY, JSON.stringify(items));
+      setStatus('synced');
+    } catch {
+      setStatus('error');
+    }
+    // Give SSE echo time to arrive before re-enabling listener
+    setTimeout(() => { isSaving = false; }, 1500);
+  }
+
+  /* ─── FIREBASE REAL-TIME LISTENER ────────────────────────────── */
+  function connectFirebase() {
+    const es = new EventSource(DB);
+
+    es.addEventListener('put', (e) => {
+      if (isSaving) return; // ignore echo from our own save
+      const { data } = JSON.parse(e.data);
+      items = Array.isArray(data) ? data : [];
+      localStorage.setItem(LS_KEY, JSON.stringify(items));
+      setStatus('synced');
+      render();
+    });
+
+    es.addEventListener('patch', () => {
+      // Full PUT always fires 'put', so patch is rare — just ignore
+    });
+
+    es.onerror = () => {
+      setStatus('error');
+      // EventSource auto-reconnects; status will flip back to synced on next put event
+    };
+  }
+
+  /* ─── RENDER ─────────────────────────────────────────────────── */
+  function render() {
+    listEl.innerHTML = '';
+
+    if (items.length === 0) {
+      emptyEl.classList.add('visible');
+      statsEl.textContent = '';
+      clearBtn.classList.remove('visible');
+      return;
+    }
+
+    emptyEl.classList.remove('visible');
+    const doneCount = items.filter(i => i.done).length;
+    statsEl.textContent = `${doneCount} / ${items.length} selesai`;
+    clearBtn.classList.toggle('visible', doneCount > 0);
+
+    items.forEach((item) => {
+      const li = document.createElement('li');
+      li.className = 'checklist-item' + (item.done ? ' done' : '');
+      li.dataset.id = item.id;
+
+      const handle = document.createElement('span');
+      handle.className = 'drag-handle';
+      handle.innerHTML = '⠿';
+      handle.title = 'Geser untuk urutkan';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'item-cb';
+      cb.checked = item.done;
+      cb.addEventListener('change', () => toggle(item.id));
+
+      const text = document.createElement('span');
+      text.className = 'item-text';
+      text.textContent = item.text;
+
+      const del = document.createElement('button');
+      del.className = 'delete-btn';
+      del.innerHTML = '✕';
+      del.title = 'Hapus';
+      del.addEventListener('click', () => remove(item.id));
+
+      li.appendChild(handle);
+      li.appendChild(cb);
+      li.appendChild(text);
+      li.appendChild(del);
+      listEl.appendChild(li);
+    });
+  }
+
+  /* ─── ACTIONS ────────────────────────────────────────────────── */
+  function addItem(text) {
+    text = text.trim();
+    if (!text) return;
+    items.unshift({ id: Date.now(), text, done: false });
+    render();
+    saveToFirebase();
+  }
+
+  function toggle(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    item.done = !item.done;
+    render();
+    saveToFirebase();
+  }
+
+  function remove(id) {
+    items = items.filter(i => i.id !== id);
+    render();
+    saveToFirebase();
+  }
+
+  function clearDone() {
+    items = items.filter(i => !i.done);
+    render();
+    saveToFirebase();
+  }
+
+  /* ─── EVENT LISTENERS ────────────────────────────────────────── */
+  addBtn.addEventListener('click', () => {
+    addItem(input.value);
+    input.value = '';
+    input.focus();
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { addItem(input.value); input.value = ''; }
+  });
+
+  clearBtn.addEventListener('click', clearDone);
+
+  /* ─── INIT ───────────────────────────────────────────────────── */
+  // Show cached data immediately while Firebase connects
+  try {
+    const cached = JSON.parse(localStorage.getItem(LS_KEY));
+    if (Array.isArray(cached) && cached.length) { items = cached; render(); }
+  } catch {}
+
+  connectFirebase(); // opens real-time connection — will update items on first event
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+  Sortable.create(listEl, {
+    handle: '.drag-handle',
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    onEnd(evt) {
+      if (evt.oldIndex === evt.newIndex) return;
+      const moved = items.splice(evt.oldIndex, 1)[0];
+      items.splice(evt.newIndex, 0, moved);
+      saveToFirebase();
+    }
+  });
+</script>
+
+</body>
+</html>
