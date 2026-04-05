@@ -393,6 +393,14 @@
       btn.classList.toggle('active', btn.dataset.section === section);
     });
 
+    // Re-init flashcards each time the tab is opened so newly completed lessons are picked up
+    if (section === 'flashcards') {
+      const fc = document.querySelector('#pane-flashcards iframe');
+      if (fc && fc.contentWindow && typeof fc.contentWindow.init === 'function') {
+        fc.contentWindow.init();
+      }
+    }
+
     localStorage.setItem('widiya-section', section);
   }
 
