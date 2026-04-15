@@ -389,6 +389,20 @@ header {
 .placed-block:hover .remove-btn { opacity: 0.7; }
 .placed-block .remove-btn:hover { opacity: 1 !important; background: rgba(0,0,0,0.22); }
 
+/* Touch devices: always show the remove button */
+@media (pointer: coarse) {
+  .placed-block .remove-btn {
+    opacity: 0.6;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    line-height: 22px;
+    top: 4px;
+    right: 4px;
+  }
+  .placed-block:active .remove-btn { opacity: 0.8; }
+}
+
 /* ===== RECURRING PANEL ===== */
 .recurring-panel {
   padding: 22px 28px;
@@ -448,6 +462,27 @@ header {
   body { background: white; }
 }
 @page { size: A4 landscape; margin: 0.8cm; }
+
+/* ===== TABLET (601px – 960px) ===== */
+@media (min-width: 601px) and (max-width: 960px) {
+  :root {
+    --palette-width: 96px;
+    --time-col: 44px;
+  }
+
+  .cal-grid {
+    grid-template-columns: var(--time-col) repeat(7, minmax(74px, 1fr));
+    min-width: 566px;  /* 44 + 7*74 = 562, ~566 with borders */
+  }
+
+  .palette { padding: 10px 6px; gap: 5px; }
+  .palette-label { display: none; }
+  .palette .block { padding: 5px 6px; }
+  .block-dur { display: none; }
+  .block-name { font-size: 0.7rem; }
+
+  .header-left h1 { font-size: 1.6rem; }
+}
 
 /* ===== MOBILE ===== */
 @media (max-width: 700px) {
@@ -577,8 +612,8 @@ header {
 </section>
 
 <p class="footer-hint">
-  Drag blocks from the left panel onto the calendar &nbsp;·&nbsp;
-  Click ✕ on a placed block to remove it &nbsp;·&nbsp;
+  Drag blocks onto the calendar &nbsp;·&nbsp;
+  Tap ✕ on a placed block to remove it &nbsp;·&nbsp;
   Schedule saves automatically
 </p>
 
