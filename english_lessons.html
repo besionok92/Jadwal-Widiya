@@ -1428,11 +1428,23 @@ showDay(last);
 
   function getEnglishVoice() {
     var voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return null;
+    var en = voices.filter(function(v) {
+      return v.lang.startsWith('en') && !v.lang.includes('IN');
+    });
+    // 1. Google neural voices (Chrome / Android — most natural)
+    var google = en.find(function(v) { return /google/i.test(v.name); });
+    if (google) return google;
+    // 2. iOS Enhanced / Premium voices (downloaded high-quality voices)
+    var enhanced = en.find(function(v) {
+      return /enhanced|premium/i.test(v.name) || /enhanced|premium/i.test(v.voiceURI || '');
+    });
+    if (enhanced) return enhanced;
+    // 3. Prefer en-US, then en-GB, then any English
     return (
-      voices.find(function(v) { return v.lang === 'en-US'; }) ||
-      voices.find(function(v) { return v.lang === 'en-GB'; }) ||
-      voices.find(function(v) { return v.lang.startsWith('en') && !v.lang.includes('IN'); }) ||
-      null
+      en.find(function(v) { return v.lang === 'en-US'; }) ||
+      en.find(function(v) { return v.lang === 'en-GB'; }) ||
+      en[0] || null
     );
   }
 
@@ -1442,7 +1454,7 @@ showDay(last);
 
     var utter = new SpeechSynthesisUtterance(text);
     utter.lang  = 'en-US';
-    utter.rate  = 0.82;  // slightly slower — better for a learner
+    utter.rate  = 0.88;  // slightly slower than natural — clear but not robotic
     utter.pitch = 1.0;
 
     var voice = getEnglishVoice();
