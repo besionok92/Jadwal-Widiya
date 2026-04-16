@@ -87,7 +87,8 @@ body {
   position: relative;
   min-height: 200px;
 }
-.camera-zone:hover { border-color: #1a6fa8; background: #f5faff; }
+.camera-zone:hover, .camera-zone.drag-over { border-color: #1a6fa8; background: #f5faff; }
+.camera-zone.drag-over { border-style: solid; transform: scale(1.01); }
 .camera-zone input[type=file] {
   position: absolute;
   inset: 0;
@@ -414,7 +415,7 @@ body {
              onchange="handleFile(this.files[0])">
       <div class="camera-icon">📷</div>
       <div class="camera-label">Foto Struk Belanja</div>
-      <div class="camera-sub">Ketuk untuk ambil foto atau pilih dari galeri</div>
+      <div class="camera-sub">Ketuk untuk ambil foto, pilih dari galeri, atau seret gambar ke sini</div>
     </div>
 
     <!-- Step 2: processing -->
@@ -491,7 +492,6 @@ var OCR = '/.netlify/functions/parse-receipt';
 var extracted     = null;   // parsed receipt from Claude
 var allReceipts   = [];     // full history loaded from Firebase
 var weekOffset    = 0;      // 0 = this week, -1 = last week, etc.
-var summaryLoaded = false;
 
 // ── TAB SWITCHING ──────────────────────────────────────────────────
 function switchTab(tab) {
@@ -619,7 +619,6 @@ function saveReceipt() {
   .then(function(r) { return r.json(); })
   .then(function() {
     btn.textContent = '✅ Tersimpan!';
-    summaryLoaded = false; // force refresh next time
     setTimeout(function() {
       resetUpload();
       btn.disabled = false;
@@ -655,7 +654,6 @@ function showError(msg) {
 
 // ── SUMMARY ────────────────────────────────────────────────────────
 function loadSummary() {
-  if (summaryLoaded) { renderSummary(); return; }
   document.getElementById('summaryArea').innerHTML =
     '<div class="loading-msg">Memuat data…</div>';
 
@@ -667,11 +665,14 @@ function loadSummary() {
       Object.keys(data).forEach(function(k) {
         allReceipts.push(Object.assign({ _id: k }, data[k]));
       });
+      // Recompute week from date so any previously mis-saved week keys are corrected
+      allReceipts.forEach(function(r) {
+        if (r.date) r.week = isoWeek(r.date);
+      });
       allReceipts.sort(function(a,b) {
         return (b.savedAt || 0) - (a.savedAt || 0);
       });
     }
-    summaryLoaded = true;
     renderSummary();
   })
   .catch(function(err) {
@@ -824,18 +825,22 @@ function todayISO() {
 // ISO 8601 week string, e.g. "2026-W16"
 function isoWeek(dateStr) {
   var d = new Date(dateStr + 'T12:00:00');
-  var day = d.getDay() || 7;
-  d.setDate(d.getDate() + 4 - day);
+  // Move to Thursday of the ISO week (Thursday determines the year in ISO 8601)
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + 3);
   var y = d.getFullYear();
   var jan4 = new Date(y, 0, 4);
-  var wk = Math.ceil(((d - jan4) / 86400000 + jan4.getDay() + 1) / 7);
-  return y + '-W' + String(wk).padStart(2, '0');
+  var weekNo = 1 + Math.round(((d - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+  return y + '-W' + String(weekNo).padStart(2, '0');
 }
 
 function weekKey(offset) {
+  // Use local date (not UTC) so Indonesia's UTC+7 is handled correctly
   var d = new Date();
   d.setDate(d.getDate() + offset * 7);
-  return isoWeek(d.toISOString().slice(0, 10));
+  var yyyy = d.getFullYear();
+  var mm   = String(d.getMonth() + 1).padStart(2, '0');
+  var dd   = String(d.getDate()).padStart(2, '0');
+  return isoWeek(yyyy + '-' + mm + '-' + dd);
 }
 
 function numFmt(n) {
@@ -850,6 +855,31 @@ function dateFmt(str) {
     });
   } catch(e) { return str; }
 }
+
+// ── DRAG-AND-DROP ──────────────────────────────────────────────────
+(function () {
+  var zone = document.getElementById('cameraZone');
+  var fi   = document.getElementById('fileInput');
+  var timer;
+
+  function addOver()  { clearTimeout(timer); zone.classList.add('drag-over'); }
+  function removeOver(){ timer = setTimeout(function(){ zone.classList.remove('drag-over'); }, 60); }
+
+  // Visual feedback — attach to both zone and file input to avoid flicker
+  [zone, fi].forEach(function(el) {
+    el.addEventListener('dragenter', function(e){ e.preventDefault(); addOver(); });
+    el.addEventListener('dragover',  function(e){ e.preventDefault(); addOver(); });
+    el.addEventListener('dragleave', removeOver);
+    el.addEventListener('drop',      function(e){ removeOver();
+      // If a file lands on the zone (not the input), handle it manually
+      if (e.target !== fi && e.dataTransfer && e.dataTransfer.files.length) {
+        e.preventDefault();
+        var f = e.dataTransfer.files[0];
+        if (f && f.type.startsWith('image/')) handleFile(f);
+      }
+    });
+  });
+})();
 
 function esc(s) {
   return String(s)
