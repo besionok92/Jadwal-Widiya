@@ -24,8 +24,8 @@
   --time-col:      54px;
   --palette-width: 152px;
   --day-hdr:       60px;
-  --total-slots:   26;           /* (20-7)*2 = 26 half-hour slots */
-  --grid-height:   896px;        /* 28 * 32 */
+  --total-slots:   30;           /* (20-5)*2 = 30 half-hour slots */
+  --grid-height:   960px;        /* 30 * 32 */
 
   /* Block palette */
   --morning-bg:    #F5D8C5; --morning-bd: #C4622D; --morning-tx: #5C2008;
@@ -503,8 +503,9 @@ header {
 
   .palette .block {
     flex-shrink: 0;
-    min-width: 86px;
+    min-width: 68px;
     padding: 6px 8px;
+    font-size: 0.85rem;
   }
 
   .header-inner { padding: 14px 16px 12px; flex-wrap: wrap; }
@@ -643,9 +644,9 @@ const DAYS = [
   { id: 'sat', en: 'Saturday',  id_: 'Sabtu',   sun: false },
 ];
 
-const START_H  = 6;
+const START_H  = 5;
 const END_H    = 20;
-const N_SLOTS  = (END_H - START_H) * 2;  // 26
+const N_SLOTS  = (END_H - START_H) * 2;  // 30
 const SLOT_PX  = 32;
 const HOUR_PX  = 64;
 
