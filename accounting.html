@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keuangan — Widiya</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f6fc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOP BAR ───────────────────────────────────────────── */
+.topbar {
+  background: #1a3a2c;
+  color: white;
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+.topbar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+
+/* ── TABS ──────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid #d0e8f7;
+  flex-shrink: 0;
+}
+.tab-btn {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7f94;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn.active { color: #1a5c3a; border-bottom-color: #1a5c3a; }
+
+/* ── PANELS ────────────────────────────────────────────── */
+.panel { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
+.panel.active { display: flex; }
+
+/* ── UPLOAD TAB ────────────────────────────────────────── */
+.upload-area {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.camera-zone {
+  border: 2.5px dashed #a0c4e0;
+  border-radius: 20px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: center;
+  position: relative;
+  min-height: 200px;
+}
+.camera-zone:hover { border-color: #1a6fa8; background: #f5faff; }
+.camera-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  font-size: 0; /* hide native label on iOS */
+}
+.camera-icon { font-size: 2.8rem; line-height: 1; pointer-events: none; }
+.camera-label { font-size: 1rem; font-weight: 600; color: #1a3a5c; pointer-events: none; }
+.camera-sub { font-size: 0.82rem; color: #6b7f94; pointer-events: none; }
+
+/* processing */
+.processing-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid #d0e8f7;
+  border-top-color: #1a6fa8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.processing-label { font-size: 1rem; font-weight: 600; color: #1a3a5c; }
+.processing-sub { font-size: 0.82rem; color: #6b7f94; }
+
+/* error */
+.error-card {
+  background: #fff5f5;
+  border: 1.5px solid #fca5a5;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* review */
+.review-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.review-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: #1a3a5c;
+}
+.field-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.field-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #6b7f94;
+}
+.field-input {
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid #d0e8f7;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #1a3a5c;
+  width: 100%;
+  transition: border-color 0.15s;
+  background: white;
+}
+.field-input:focus { outline: none; border-color: #1a6fa8; }
+
+/* items table */
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+.items-table th {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7f94;
+  padding: 0.3rem 0.4rem;
+  text-align: left;
+  border-bottom: 1px solid #e8f0f8;
+}
+.items-table td {
+  padding: 0.4rem 0.4rem;
+  color: #1a3a5c;
+  border-bottom: 1px solid #f0f6fc;
+  vertical-align: middle;
+}
+.items-table td input {
+  width: 100%;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.86rem;
+  color: #1a3a5c;
+  background: transparent;
+  padding: 0.15rem 0;
+}
+.items-table td input:focus {
+  outline: none;
+  background: #f0f8ff;
+  border-radius: 4px;
+  padding: 0.15rem 0.3rem;
+}
+.th-qty, .td-qty { width: 44px; text-align: center; }
+.th-price, .td-price { width: 110px; text-align: right; }
+.td-price input { text-align: right; }
+.total-row td {
+  font-weight: 700;
+  border-top: 2px solid #c5e3f7;
+  border-bottom: none;
+  background: #f5faff;
+  padding-top: 0.5rem;
+}
+
+.btn-row { display: flex; gap: 0.7rem; }
+.btn-save {
+  flex: 1;
+  background: #1a5c3a;
+  color: white;
+  border: none;
+  border-radius: 100px;
+  padding: 0.9rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-save:hover { background: #145030; }
+.btn-save:disabled { opacity: 0.5; cursor: default; }
+.btn-reset {
+  background: none;
+  border: 1.5px solid #d0e8f7;
+  border-radius: 100px;
+  padding: 0.7rem 1.2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7f94;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-reset:hover { border-color: #1a6fa8; color: #1a6fa8; }
+
+/* ── SUMMARY TAB ───────────────────────────────────────── */
+.summary-area {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.week-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.week-nav {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid #c5e3f7;
+  background: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.week-nav:hover:not(:disabled) { border-color: #1a6fa8; }
+.week-nav:disabled { opacity: 0.3; cursor: default; }
+.week-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a3a5c;
+  min-width: 150px;
+  text-align: center;
+}
+
+/* total hero card */
+.total-card {
+  background: linear-gradient(135deg, #1a3a2c 0%, #1a5c3a 100%);
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  color: white;
+  text-align: center;
+}
+.total-card .tc-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.65;
+}
+.total-card .tc-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0.4rem 0 0.2rem;
+}
+.total-card .tc-sub { font-size: 0.8rem; opacity: 0.6; }
+.total-card .tc-change {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 0.6rem;
+  opacity: 0.85;
+}
+.tc-up { color: #fca5a5; }
+.tc-down { color: #86efac; }
+
+/* section title */
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: #1a3a5c;
+  margin-bottom: 0.75rem;
+}
+
+/* shop breakdown */
+.shop-list { display: flex; flex-direction: column; gap: 0.65rem; }
+.shop-item {
+  background: white;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.shop-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.shop-name { font-weight: 600; font-size: 0.9rem; color: #1a3a5c; }
+.shop-amount { font-weight: 700; font-size: 0.92rem; color: #1a5c3a; white-space: nowrap; }
+.shop-meta { font-size: 0.73rem; color: #9bb0c4; margin-top: 0.15rem; margin-bottom: 0.45rem; }
+.bar-bg { height: 5px; background: #e8f0f8; border-radius: 100px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #1a5c3a, #2aa85a); border-radius: 100px; transition: width 0.4s ease; }
+
+/* receipt list */
+.receipt-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.receipt-item {
+  background: white;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.receipt-item:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+.receipt-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.receipt-shop { font-weight: 600; font-size: 0.9rem; color: #1a3a5c; }
+.receipt-total { font-weight: 700; font-size: 0.9rem; color: #1a5c3a; white-space: nowrap; }
+.receipt-date { font-size: 0.73rem; color: #9bb0c4; margin-top: 0.1rem; }
+.receipt-preview { font-size: 0.76rem; color: #a0b4c8; margin-top: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.receipt-detail {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e8f0f8;
+  display: none;
+}
+.receipt-detail.open { display: block; }
+.detail-table { width: 100%; border-collapse: collapse; }
+.detail-table td {
+  font-size: 0.8rem;
+  color: #4a6080;
+  padding: 0.22rem 0;
+}
+.detail-table td:last-child { text-align: right; font-weight: 600; color: #1a3a5c; }
+.btn-delete {
+  margin-top: 0.7rem;
+  background: none;
+  border: none;
+  font-size: 0.72rem;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #a0b4c8;
+}
+.empty-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+.empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+.loading-msg { text-align: center; padding: 2.5rem 1rem; color: #6b7f94; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <h1>💰 Keuangan</h1>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" id="tab-upload" onclick="switchTab('upload')">📷 Unggah Struk</button>
+  <button class="tab-btn"        id="tab-summary" onclick="switchTab('summary')">📊 Ringkasan</button>
+</div>
+
+<!-- ══ UPLOAD PANEL ══════════════════════════════════════ -->
+<div class="panel active" id="panel-upload">
+  <div class="upload-area">
+
+    <!-- Step 1: pick photo -->
+    <div class="camera-zone" id="cameraZone">
+      <input type="file" id="fileInput" accept="image/*" capture="environment"
+             onchange="handleFile(this.files[0])">
+      <div class="camera-icon">📷</div>
+      <div class="camera-label">Foto Struk Belanja</div>
+      <div class="camera-sub">Ketuk untuk ambil foto atau pilih dari galeri</div>
+    </div>
+
+    <!-- Step 2: processing -->
+    <div class="processing-card" id="processingCard" style="display:none">
+      <div class="spinner"></div>
+      <div class="processing-label">Membaca struk…</div>
+      <div class="processing-sub">AI sedang menganalisis gambar</div>
+    </div>
+
+    <!-- Step 2b: error -->
+    <div class="error-card" id="errorCard" style="display:none"></div>
+
+    <!-- Step 3: review & save -->
+    <div class="review-card" id="reviewCard" style="display:none">
+      <div class="review-title">✅ Periksa Data Struk</div>
+
+      <div class="field-group">
+        <div class="field-label">Nama Toko</div>
+        <input type="text" class="field-input" id="fieldShop" placeholder="Nama toko…">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Tanggal</div>
+        <input type="date" class="field-input" id="fieldDate">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Item-item Belanja</div>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Nama Barang</th>
+              <th class="th-qty">Qty</th>
+              <th class="th-price">Harga (Rp)</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2">TOTAL</td>
+              <td class="td-price" id="totalDisplay" style="padding-right:0.4rem">—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Koreksi Total Jika Perlu (Rp)</div>
+        <input type="number" class="field-input" id="fieldTotal" oninput="onTotalInput()">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-reset" onclick="resetUpload()">↩ Ulangi</button>
+        <button class="btn-save" id="btnSave" onclick="saveReceipt()">💾 Simpan</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SUMMARY PANEL ══════════════════════════════════════ -->
+<div class="panel" id="panel-summary">
+  <div class="summary-area" id="summaryArea">
+    <div class="loading-msg">Memuat data…</div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────
+var DB  = 'https://widiya-b2c41-default-rtdb.asia-southeast1.firebasedatabase.app';
+var OCR = '/.netlify/functions/parse-receipt';
+
+// ── STATE ──────────────────────────────────────────────────────────
+var extracted     = null;   // parsed receipt from Claude
+var allReceipts   = [];     // full history loaded from Firebase
+var weekOffset    = 0;      // 0 = this week, -1 = last week, etc.
+var summaryLoaded = false;
+
+// ── TAB SWITCHING ──────────────────────────────────────────────────
+function switchTab(tab) {
+  ['upload','summary'].forEach(function(t) {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'summary') loadSummary();
+}
+
+// ── FILE HANDLING ──────────────────────────────────────────────────
+function handleFile(file) {
+  if (!file) return;
+  show('processingCard');
+  hide('cameraZone');
+  hide('errorCard');
+  hide('reviewCard');
+
+  compressImage(file, 1200, 0.82, function(dataUrl) {
+    var base64 = dataUrl.split(',')[1];
+    fetch(OCR, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64: base64, mediaType: 'image/jpeg' }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      hide('processingCard');
+      if (data.error) { showError(data.error); return; }
+      extracted = data;
+      populateReview(data);
+    })
+    .catch(function(err) {
+      hide('processingCard');
+      showError('Gagal menghubungi server. Cek koneksi internet. (' + err.message + ')');
+    });
+  });
+}
+
+function compressImage(file, maxW, quality, cb) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var w = img.width, h = img.height;
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── REVIEW FORM ────────────────────────────────────────────────────
+function populateReview(data) {
+  document.getElementById('fieldShop').value = data.shop || '';
+  document.getElementById('fieldDate').value = data.date || todayISO();
+  document.getElementById('fieldTotal').value = data.total || '';
+  updateTotalDisplay();
+
+  var tbody = document.getElementById('itemsBody');
+  tbody.innerHTML = '';
+  (data.items || []).forEach(function(item, i) {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" value="' + esc(item.name || '') + '" ' +
+        'oninput="extracted.items[' + i + '].name=this.value"></td>' +
+      '<td class="td-qty"><input type="number" min="1" value="' + (item.qty||1) + '" ' +
+        'style="width:38px;text-align:center" ' +
+        'oninput="extracted.items[' + i + '].qty=+this.value"></td>' +
+      '<td class="td-price"><input type="number" value="' + (item.price||0) + '" ' +
+        'oninput="extracted.items[' + i + '].price=+this.value;recalcTotal()"></td>';
+    tbody.appendChild(tr);
+  });
+
+  show('reviewCard');
+}
+
+function recalcTotal() {
+  if (!extracted || !extracted.items) return;
+  var sum = extracted.items.reduce(function(a, it) { return a + (it.price || 0); }, 0);
+  document.getElementById('fieldTotal').value = sum;
+  updateTotalDisplay();
+}
+
+function onTotalInput() {
+  updateTotalDisplay();
+}
+
+function updateTotalDisplay() {
+  var v = parseFloat(document.getElementById('fieldTotal').value) || 0;
+  document.getElementById('totalDisplay').textContent = 'Rp ' + numFmt(v);
+}
+
+// ── SAVE TO FIREBASE ───────────────────────────────────────────────
+function saveReceipt() {
+  var shop  = document.getElementById('fieldShop').value.trim();
+  var date  = document.getElementById('fieldDate').value || todayISO();
+  var total = parseFloat(document.getElementById('fieldTotal').value) || 0;
+
+  if (!shop)  { alert('Masukkan nama toko dulu!'); return; }
+  if (!total) { alert('Masukkan total belanja dulu!'); return; }
+
+  var btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan…';
+
+  var record = {
+    shop:    shop,
+    date:    date,
+    week:    isoWeek(date),
+    total:   total,
+    items:   (extracted && extracted.items) || [],
+    savedAt: Date.now(),
+  };
+
+  fetch(DB + '/receipts.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(record),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function() {
+    btn.textContent = '✅ Tersimpan!';
+    summaryLoaded = false; // force refresh next time
+    setTimeout(function() {
+      resetUpload();
+      btn.disabled = false;
+      btn.textContent = '💾 Simpan';
+    }, 1500);
+  })
+  .catch(function(err) {
+    alert('Gagal menyimpan: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '💾 Simpan';
+  });
+}
+
+// ── RESET ──────────────────────────────────────────────────────────
+function resetUpload() {
+  extracted = null;
+  hide('processingCard');
+  hide('reviewCard');
+  hide('errorCard');
+  show('cameraZone');
+  document.getElementById('fileInput').value = '';
+}
+
+function showError(msg) {
+  var el = document.getElementById('errorCard');
+  el.innerHTML = '⚠️ ' + esc(msg) +
+    '<br><br><button onclick="resetUpload()" style="font-family:Inter,sans-serif;font-size:0.85rem;' +
+    'color:#1a6fa8;background:none;border:none;cursor:pointer;padding:0;font-weight:600">' +
+    '← Coba lagi</button>';
+  show('errorCard');
+  show('cameraZone');
+}
+
+// ── SUMMARY ────────────────────────────────────────────────────────
+function loadSummary() {
+  if (summaryLoaded) { renderSummary(); return; }
+  document.getElementById('summaryArea').innerHTML =
+    '<div class="loading-msg">Memuat data…</div>';
+
+  fetch(DB + '/receipts.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    allReceipts = [];
+    if (data && typeof data === 'object') {
+      Object.keys(data).forEach(function(k) {
+        allReceipts.push(Object.assign({ _id: k }, data[k]));
+      });
+      allReceipts.sort(function(a,b) {
+        return (b.savedAt || 0) - (a.savedAt || 0);
+      });
+    }
+    summaryLoaded = true;
+    renderSummary();
+  })
+  .catch(function(err) {
+    document.getElementById('summaryArea').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">⚠️</div>' +
+      '<p>Gagal memuat data:<br>' + esc(err.message) + '</p></div>';
+  });
+}
+
+function renderSummary() {
+  var thisWeek = weekKey(0);
+  var lastWeek = weekKey(-1);
+  var targetWeek = weekKey(weekOffset);
+
+  var weekRecs = allReceipts.filter(function(r) { return r.week === targetWeek; });
+  var thisTotal = allReceipts.filter(function(r) { return r.week === thisWeek; })
+                             .reduce(function(a,r) { return a + (r.total||0); }, 0);
+  var lastTotal = allReceipts.filter(function(r) { return r.week === lastWeek; })
+                             .reduce(function(a,r) { return a + (r.total||0); }, 0);
+  var weekTotal = weekRecs.reduce(function(a,r) { return a + (r.total||0); }, 0);
+
+  // Shop map — ALL time
+  var shopMap = {};
+  allReceipts.forEach(function(r) {
+    var s = (r.shop || 'Tidak diketahui').trim();
+    if (!shopMap[s]) shopMap[s] = { total: 0, visits: 0 };
+    shopMap[s].total  += r.total || 0;
+    shopMap[s].visits += 1;
+  });
+  var shops = Object.entries(shopMap).sort(function(a,b) { return b[1].total - a[1].total; });
+  var shopMax = shops.length ? shops[0][1].total : 1;
+
+  // Week label
+  var isThisWeek = weekOffset === 0;
+  var weekLabel  = isThisWeek ? 'Minggu Ini' : targetWeek;
+
+  // Week-over-week change (only show on current week)
+  var changeHtml = '';
+  if (isThisWeek && lastTotal > 0) {
+    var pct = Math.round(((thisTotal - lastTotal) / lastTotal) * 100);
+    var sign = pct >= 0 ? '+' : '';
+    var cls  = pct >= 0 ? 'tc-up' : 'tc-down';
+    var arrow = pct >= 0 ? '↑' : '↓';
+    changeHtml = '<div class="tc-change"><span class="' + cls + '">' +
+      arrow + ' ' + sign + pct + '% vs minggu lalu</span></div>';
+  }
+
+  var html = '';
+
+  // Week selector
+  html += '<div class="week-selector">';
+  html += '<button class="week-nav" onclick="changeWeek(-1)">←</button>';
+  html += '<div class="week-label">' + weekLabel + ' (' + targetWeek + ')</div>';
+  html += '<button class="week-nav" onclick="changeWeek(1)"' + (weekOffset >= 0 ? ' disabled' : '') + '>→</button>';
+  html += '</div>';
+
+  // Total hero card
+  html += '<div class="total-card">';
+  html += '<div class="tc-label">Total Pengeluaran</div>';
+  html += '<div class="tc-amount">Rp ' + numFmt(weekTotal) + '</div>';
+  html += '<div class="tc-sub">' + weekRecs.length + ' struk · ' + weekLabel + '</div>';
+  html += changeHtml;
+  html += '</div>';
+
+  // Shop breakdown (all time)
+  if (shops.length) {
+    html += '<div>';
+    html += '<div class="section-title">🏪 Pengeluaran per Toko — Semua Waktu</div>';
+    html += '<div class="shop-list">';
+    shops.forEach(function(kv) {
+      var name = kv[0], d = kv[1];
+      var pct  = Math.round((d.total / shopMax) * 100);
+      html += '<div class="shop-item">';
+      html += '<div class="shop-row"><span class="shop-name">' + esc(name) + '</span>';
+      html += '<span class="shop-amount">Rp ' + numFmt(d.total) + '</span></div>';
+      html += '<div class="shop-meta">' + d.visits + ' kunjungan</div>';
+      html += '<div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%"></div></div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Receipts for this week
+  html += '<div>';
+  html += '<div class="section-title">🧾 Struk ' + weekLabel + '</div>';
+  if (!weekRecs.length) {
+    html += '<div class="empty-state"><div class="empty-icon">🧾</div>';
+    html += '<p>Belum ada struk untuk ' + weekLabel.toLowerCase() + '.<br>Foto struk belanjaan kamu!</p></div>';
+  } else {
+    html += '<div class="receipt-list">';
+    weekRecs.forEach(function(r) {
+      var preview = (r.items||[]).slice(0,3).map(function(i){ return i.name; }).join(', ');
+      if ((r.items||[]).length > 3) preview += '…';
+      html += '<div class="receipt-item" onclick="toggleDetail(\'' + r._id + '\')">';
+      html += '<div class="receipt-row">';
+      html += '<div><div class="receipt-shop">' + esc(r.shop||'—') + '</div>';
+      html += '<div class="receipt-date">' + dateFmt(r.date) + '</div>';
+      if (preview) html += '<div class="receipt-preview">' + esc(preview) + '</div>';
+      html += '</div>';
+      html += '<div class="receipt-total">Rp ' + numFmt(r.total||0) + '</div>';
+      html += '</div>';
+      // expandable detail
+      html += '<div class="receipt-detail" id="detail-' + r._id + '">';
+      html += '<table class="detail-table">';
+      (r.items||[]).forEach(function(it) {
+        html += '<tr><td>' + esc(it.name||'') + ' ×' + (it.qty||1) + '</td>';
+        html += '<td>Rp ' + numFmt(it.price||0) + '</td></tr>';
+      });
+      html += '</table>';
+      html += '<button class="btn-delete" onclick="deleteReceipt(event,\'' + r._id + '\')">🗑 Hapus struk ini</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+
+  document.getElementById('summaryArea').innerHTML = html;
+}
+
+function toggleDetail(id) {
+  var el = document.getElementById('detail-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function deleteReceipt(e, id) {
+  e.stopPropagation();
+  if (!confirm('Hapus struk ini?')) return;
+  fetch(DB + '/receipts/' + id + '.json', { method: 'DELETE' })
+  .then(function() {
+    summaryLoaded = false;
+    loadSummary();
+  })
+  .catch(function(err) { alert('Gagal menghapus: ' + err.message); });
+}
+
+function changeWeek(delta) {
+  weekOffset = Math.min(0, weekOffset + delta);
+  renderSummary();
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────
+function show(id) { document.getElementById(id).style.display = ''; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// ISO 8601 week string, e.g. "2026-W16"
+function isoWeek(dateStr) {
+  var d = new Date(dateStr + 'T12:00:00');
+  var day = d.getDay() || 7;
+  d.setDate(d.getDate() + 4 - day);
+  var y = d.getFullYear();
+  var jan4 = new Date(y, 0, 4);
+  var wk = Math.ceil(((d - jan4) / 86400000 + jan4.getDay() + 1) / 7);
+  return y + '-W' + String(wk).padStart(2, '0');
+}
+
+function weekKey(offset) {
+  var d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  return isoWeek(d.toISOString().slice(0, 10));
+}
+
+function numFmt(n) {
+  return Math.round(n).toLocaleString('id-ID');
+}
+
+function dateFmt(str) {
+  if (!str) return '—';
+  try {
+    return new Date(str + 'T12:00:00').toLocaleDateString('id-ID', {
+      weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    });
+  } catch(e) { return str; }
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

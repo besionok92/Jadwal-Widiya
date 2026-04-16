@@ -320,6 +320,10 @@
         <span class="icon">🗂️</span>
         <span class="label">Projects</span>
       </button>
+      <button class="nav-item" data-section="accounting" onclick="switchTo('accounting')">
+        <span class="icon">💰</span>
+        <span class="label">Keuangan</span>
+      </button>
     </nav>
     <div class="sidebar-footer">
       Widiya &nbsp;·&nbsp; 2026
@@ -353,6 +357,10 @@
       <iframe src="projects.html" title="Projects" loading="lazy"></iframe>
     </div>
 
+    <div class="frame-pane" id="pane-accounting">
+      <iframe src="accounting.html" title="Keuangan" loading="lazy"></iframe>
+    </div>
+
   </main>
 
 </div>
@@ -383,6 +391,10 @@
     <button class="tab-btn" data-section="projects" onclick="switchTo('projects')">
       <span class="tab-icon">🗂️</span>
       <span>Work</span>
+    </button>
+    <button class="tab-btn" data-section="accounting" onclick="switchTo('accounting')">
+      <span class="tab-icon">💰</span>
+      <span>Uang</span>
     </button>
     <button class="reload-btn" onclick="location.reload(true)" title="Refresh">
       <span class="reload-icon">↺</span>
