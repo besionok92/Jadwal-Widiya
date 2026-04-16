@@ -602,10 +602,13 @@ function saveReceipt() {
   btn.disabled = true;
   btn.textContent = 'Menyimpan…';
 
+  var week = isoWeek(date);
+  console.log('Saving receipt - date:', date, 'calculated week:', week);
+
   var record = {
     shop:    shop,
     date:    date,
-    week:    isoWeek(date),
+    week:    week,
     total:   total,
     items:   (extracted && extracted.items) || [],
     savedAt: Date.now(),
@@ -672,6 +675,7 @@ function loadSummary() {
       allReceipts.sort(function(a,b) {
         return (b.savedAt || 0) - (a.savedAt || 0);
       });
+      console.log('Loaded receipts:', allReceipts);
     }
     renderSummary();
   })
@@ -687,7 +691,12 @@ function renderSummary() {
   var lastWeek = weekKey(-1);
   var targetWeek = weekKey(weekOffset);
 
+  console.log('Week calculation - thisWeek:', thisWeek, 'targetWeek:', targetWeek, 'weekOffset:', weekOffset);
+  console.log('All receipts for matching:', allReceipts.map(function(r) { return {date: r.date, week: r.week, total: r.total}; }));
+
   var weekRecs = allReceipts.filter(function(r) { return r.week === targetWeek; });
+  console.log('Filtered receipts for targetWeek ' + targetWeek + ':', weekRecs.length, weekRecs);
+
   var thisTotal = allReceipts.filter(function(r) { return r.week === thisWeek; })
                              .reduce(function(a,r) { return a + (r.total||0); }, 0);
   var lastTotal = allReceipts.filter(function(r) { return r.week === lastWeek; })
@@ -819,7 +828,12 @@ function show(id) { document.getElementById(id).style.display = ''; }
 function hide(id) { document.getElementById(id).style.display = 'none'; }
 
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  // Use local date, not UTC, to match the user's timezone (Indonesia UTC+7)
+  var d = new Date();
+  var yyyy = d.getFullYear();
+  var mm   = String(d.getMonth() + 1).padStart(2, '0');
+  var dd   = String(d.getDate()).padStart(2, '0');
+  return yyyy + '-' + mm + '-' + dd;
 }
 
 // ISO 8601 week string, e.g. "2026-W16"
@@ -829,6 +843,7 @@ function isoWeek(dateStr) {
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + 3);
   var y = d.getFullYear();
   var jan4 = new Date(y, 0, 4);
+  jan4.setHours(12, 0, 0, 0);  // Match the noon time to avoid rounding errors
   var weekNo = 1 + Math.round(((d - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
   return y + '-W' + String(weekNo).padStart(2, '0');
 }
