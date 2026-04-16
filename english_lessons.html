@@ -393,6 +393,55 @@ nav a.active { color: #fff; border-bottom-color: #5bbfea; }
   transition: background 0.15s, border-color 0.15s;
 }
 .day-nav-btn:hover { background: var(--sky); border-color: var(--cerulean); }
+
+/* ── SPEAK BUTTON ─────────────────────────────────────── */
+.speak-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--sky);
+  color: var(--cerulean);
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.12s;
+  flex-shrink: 0;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  line-height: 1;
+}
+.speak-btn:hover { background: var(--skymed); transform: scale(1.1); }
+.speak-btn:active { transform: scale(0.92); }
+.speak-btn.speaking {
+  background: var(--cerulean);
+  color: white;
+  animation: speak-pulse 0.65s ease-in-out infinite;
+}
+@keyframes speak-pulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(26,111,168,0.45); }
+  50%       { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(26,111,168,0);    }
+}
+
+/* word-card: make room for the button */
+.word-card { padding-right: 2.5rem; }
+
+/* sentence-item: button floats at the vertical centre on the right */
+.sentence-item { position: relative; padding-right: 2.8rem; }
+.sentence-item .speak-btn { top: 50%; right: 0.75rem; transform: translateY(-50%); }
+.sentence-item .speak-btn:hover            { transform: translateY(-50%) scale(1.1); }
+.sentence-item .speak-btn:active           { transform: translateY(-50%) scale(0.92); }
+.sentence-item .speak-btn.speaking {
+  animation: speak-pulse-mid 0.65s ease-in-out infinite;
+}
+@keyframes speak-pulse-mid {
+  0%, 100% { transform: translateY(-50%) scale(1);    box-shadow: 0 0 0 0   rgba(26,111,168,0.45); }
+  50%       { transform: translateY(-50%) scale(1.15); box-shadow: 0 0 0 6px rgba(26,111,168,0);    }
+}
 </style>
 </head>
 <body>
@@ -1370,6 +1419,83 @@ document.querySelectorAll('nav a').forEach(function(a, i) {
 // Show initial day (restore last visited, default Day 1)
 var last = parseInt(localStorage.getItem('widiya-english-day')) || 1;
 showDay(last);
+
+// ── SPEECH SYNTHESIS ──────────────────────────────────────────────────────────
+(function () {
+  if (!window.speechSynthesis) return; // no support → skip silently
+
+  var activeBtn = null;
+
+  function getEnglishVoice() {
+    var voices = window.speechSynthesis.getVoices();
+    return (
+      voices.find(function(v) { return v.lang === 'en-US'; }) ||
+      voices.find(function(v) { return v.lang === 'en-GB'; }) ||
+      voices.find(function(v) { return v.lang.startsWith('en') && !v.lang.includes('IN'); }) ||
+      null
+    );
+  }
+
+  function speak(text, btn) {
+    window.speechSynthesis.cancel();
+    if (activeBtn) { activeBtn.classList.remove('speaking'); activeBtn = null; }
+
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang  = 'en-US';
+    utter.rate  = 0.82;  // slightly slower — better for a learner
+    utter.pitch = 1.0;
+
+    var voice = getEnglishVoice();
+    if (voice) utter.voice = voice;
+
+    if (btn) { btn.classList.add('speaking'); activeBtn = btn; }
+
+    utter.onend = utter.onerror = function () {
+      if (btn) btn.classList.remove('speaking');
+      if (activeBtn === btn) activeBtn = null;
+    };
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  function makeSpeakBtn(text) {
+    var btn = document.createElement('button');
+    btn.className = 'speak-btn';
+    btn.type  = 'button';
+    btn.title = 'Dengar pengucapan bahasa Inggris';
+    btn.innerHTML = '🔊';
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      speak(text, btn);
+    });
+    return btn;
+  }
+
+  // Strip Indonesian gloss spans to get clean English text for sentences
+  function sentenceText(enEl) {
+    var clone = enEl.cloneNode(true);
+    clone.querySelectorAll('.gloss').forEach(function(g) { g.remove(); });
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+  }
+
+  // Inject buttons — all day sections are in the DOM (just hidden via CSS)
+  document.querySelectorAll('.word-card').forEach(function(card) {
+    var enEl = card.querySelector('.word-en');
+    if (!enEl) return;
+    card.appendChild(makeSpeakBtn(enEl.textContent.trim()));
+  });
+
+  document.querySelectorAll('.sentence-item').forEach(function(item) {
+    var enEl = item.querySelector('.sentence-en');
+    if (!enEl) return;
+    item.appendChild(makeSpeakBtn(sentenceText(enEl)));
+  });
+
+  // iOS Safari loads voices asynchronously — register handler to warm up the list
+  if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+    window.speechSynthesis.onvoiceschanged = function() {};
+  }
+})();
 </script>
 
 </body>
