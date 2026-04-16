@@ -492,6 +492,7 @@ var OCR = '/.netlify/functions/parse-receipt';
 var extracted     = null;   // parsed receipt from Claude
 var allReceipts   = [];     // full history loaded from Firebase
 var weekOffset    = 0;      // 0 = this week, -1 = last week, etc.
+var lastSavedReceipt = null; // Track last saved receipt to prevent duplicates
 
 // ── TAB SWITCHING ──────────────────────────────────────────────────
 function switchTab(tab) {
@@ -598,6 +599,19 @@ function saveReceipt() {
   if (!shop)  { alert('Masukkan nama toko dulu!'); return; }
   if (!total) { alert('Masukkan total belanja dulu!'); return; }
 
+  // Check for exact duplicates (same shop, date, and total)
+  if (lastSavedReceipt &&
+      lastSavedReceipt.shop === shop &&
+      lastSavedReceipt.date === date &&
+      lastSavedReceipt.total === total) {
+    alert('⚠️ Struk ini sama dengan yang baru disimpan!\n\n' +
+          'Toko: ' + shop + '\n' +
+          'Tanggal: ' + date + '\n' +
+          'Total: Rp ' + numFmt(total) + '\n\n' +
+          'Batalkan pengiriman untuk menghindari duplikat.');
+    return;
+  }
+
   var btn = document.getElementById('btnSave');
   btn.disabled = true;
   btn.textContent = 'Menyimpan…';
@@ -621,6 +635,10 @@ function saveReceipt() {
   })
   .then(function(r) { return r.json(); })
   .then(function() {
+    // Save the receipt details to detect duplicates on next submission
+    lastSavedReceipt = { shop: shop, date: date, total: total };
+    console.log('Receipt saved. Last saved:', lastSavedReceipt);
+
     btn.textContent = '✅ Tersimpan!';
     setTimeout(function() {
       resetUpload();
