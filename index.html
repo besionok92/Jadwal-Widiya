@@ -115,6 +115,15 @@
       text-transform: uppercase;
     }
 
+    .nav-reload {
+      margin-top: auto;
+      border-top: 1px solid var(--shell-border);
+      border-radius: 0;
+      padding-top: 0.9rem;
+      opacity: 0.55;
+    }
+    .nav-reload:hover { opacity: 1; }
+
     .sidebar-footer {
       padding: 1rem 1.4rem calc(1rem + var(--safe-bottom));
       border-top: 1px solid var(--shell-border);
@@ -322,7 +331,11 @@
       </button>
       <button class="nav-item" data-section="accounting" onclick="switchTo('accounting')">
         <span class="icon">💰</span>
-        <span class="label">Keuangan</span>
+        <span class="label">Money</span>
+      </button>
+      <button class="nav-item nav-reload" onclick="location.reload(true)" title="Reload app">
+        <span class="icon">↺</span>
+        <span class="label">Reload</span>
       </button>
     </nav>
     <div class="sidebar-footer">
@@ -394,7 +407,7 @@
     </button>
     <button class="tab-btn" data-section="accounting" onclick="switchTo('accounting')">
       <span class="tab-icon">💰</span>
-      <span>Uang</span>
+      <span>Money</span>
     </button>
     <button class="reload-btn" onclick="location.reload(true)" title="Refresh">
       <span class="reload-icon">↺</span>
