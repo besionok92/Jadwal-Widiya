@@ -509,22 +509,17 @@ var OCR = '/.netlify/functions/parse-receipt';
 // ── STATE ──────────────────────────────────────────────────────────
 var extracted     = null;   // parsed receipt from Claude
 var allReceipts   = [];     // full history loaded from Firebase
-var weekOffset    = 0;      // 0 = this week, -1 = last week, etc.
+var monthOffset   = 0;      // 0 = this month, -1 = last month, etc.
 var lastSavedReceipt = null; // Track last saved receipt to prevent duplicates
-var totalFundsGiven = 5000000; // Track total funds given to maid (5M IDR initially)
+var monthlyAllowance = 5000000; // 5M IDR per month on the 1st
 
 // ── LOAD/SAVE STATE ────────────────────────────────────────────────
 function loadAppState() {
-  try {
-    var saved = localStorage.getItem('widiya-accounting-funds');
-    if (saved) totalFundsGiven = parseInt(saved, 10);
-  } catch(e) {}
+  // monthlyAllowance is always 5M per month, no need to load
 }
 
 function saveFundsState() {
-  try {
-    localStorage.setItem('widiya-accounting-funds', String(totalFundsGiven));
-  } catch(e) {}
+  // No state to save - monthly allowance is fixed at 5M
 }
 
 // ── TAB SWITCHING ──────────────────────────────────────────────────
@@ -709,7 +704,7 @@ function showError(msg) {
 // ── ADD FUNDS ──────────────────────────────────────────────────────
 function updateFundsPreview() {
   var amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
-  var newTotal = totalFundsGiven + amount;
+  var newTotal = monthlyAllowance + amount;
   document.getElementById('fundsPreviewTotal').textContent = numFmt(newTotal);
 }
 
@@ -719,15 +714,29 @@ function confirmAddFunds() {
     alert('Masukkan jumlah yang valid!');
     return;
   }
-  if (!confirm('Tambah Rp ' + numFmt(amount) + ' untuk Widiya?\n\nTotal: Rp ' + numFmt(totalFundsGiven + amount))) {
+  if (!confirm('Top-up Rp ' + numFmt(amount) + ' untuk bulan ini?\n\nTotal bulan ini: Rp ' + numFmt(monthlyAllowance + amount))) {
     return;
   }
-  totalFundsGiven += amount;
-  saveFundsState();
-  document.getElementById('addFundsAmount').value = '';
-  updateFundsPreview();
-  // Switch to summary to see the updated balance
-  switchTab('summary');
+  // Create a "fund top-up" receipt to track it
+  var record = {
+    shop:    '💰 Top-up Dana',
+    date:    todayISO(),
+    total:   -amount,  // Negative to indicate addition
+    items:   [],
+    savedAt: Date.now(),
+    isTopup: true
+  };
+
+  fetch(DB + '/receipts.json', {
+    method: 'POST',
+    body: JSON.stringify(record)
+  })
+  .then(function() {
+    document.getElementById('addFundsAmount').value = '';
+    updateFundsPreview();
+    switchTab('summary');
+  })
+  .catch(function(err) { alert('Gagal: ' + err.message); });
 }
 
 // ── SUMMARY ────────────────────────────────────────────────────────
@@ -761,26 +770,55 @@ function loadSummary() {
   });
 }
 
+function getMonthDateRange(offset) {
+  // offset: 0 = this month, -1 = last month, etc.
+  var d = new Date();
+  d.setMonth(d.getMonth() + offset);
+  var year = d.getFullYear();
+  var month = d.getMonth() + 1;
+  var monthStr = String(month).padStart(2, '0');
+  var yearStr = String(year);
+  var monthName = new Date(year, month - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+  return {
+    year: year,
+    month: month,
+    monthStr: monthStr,
+    monthName: monthName,
+    yearStr: yearStr
+  };
+}
+
+function getMonthReceipts(offset) {
+  var range = getMonthDateRange(offset);
+  var startDate = range.yearStr + '-' + range.monthStr + '-01';
+
+  return allReceipts.filter(function(r) {
+    if (!r.date) return false;
+    // Check if receipt is in this month
+    return r.date.substring(0, 7) === (range.yearStr + '-' + range.monthStr);
+  });
+}
+
 function renderSummary() {
-  var thisWeek = weekKey(0);
-  var lastWeek = weekKey(-1);
-  var targetWeek = weekKey(weekOffset);
+  var monthRecs = getMonthReceipts(monthOffset);
+  var range = getMonthDateRange(monthOffset);
 
-  console.log('Week calculation - thisWeek:', thisWeek, 'targetWeek:', targetWeek, 'weekOffset:', weekOffset);
-  console.log('All receipts for matching:', allReceipts.map(function(r) { return {date: r.date, week: r.week, total: r.total}; }));
+  // Calculate spending and top-ups this month
+  var monthSpent = 0, monthTopup = 0;
+  monthRecs.forEach(function(r) {
+    if (r.isTopup) {
+      monthTopup -= (r.total || 0);  // negative total, so negate it
+    } else {
+      monthSpent += (r.total || 0);
+    }
+  });
+  var monthBalance = monthlyAllowance + monthTopup - monthSpent;
 
-  var weekRecs = allReceipts.filter(function(r) { return r.week === targetWeek; });
-  console.log('Filtered receipts for targetWeek ' + targetWeek + ':', weekRecs.length, weekRecs);
-
-  var thisTotal = allReceipts.filter(function(r) { return r.week === thisWeek; })
-                             .reduce(function(a,r) { return a + (r.total||0); }, 0);
-  var lastTotal = allReceipts.filter(function(r) { return r.week === lastWeek; })
-                             .reduce(function(a,r) { return a + (r.total||0); }, 0);
-  var weekTotal = weekRecs.reduce(function(a,r) { return a + (r.total||0); }, 0);
-
-  // Shop map — ALL time
+  // Shop breakdown for this month
   var shopMap = {};
-  allReceipts.forEach(function(r) {
+  monthRecs.forEach(function(r) {
+    if (r.isTopup) return;  // Skip top-ups
     var s = (r.shop || 'Tidak diketahui').trim();
     if (!shopMap[s]) shopMap[s] = { total: 0, visits: 0 };
     shopMap[s].total  += r.total || 0;
@@ -789,53 +827,32 @@ function renderSummary() {
   var shops = Object.entries(shopMap).sort(function(a,b) { return b[1].total - a[1].total; });
   var shopMax = shops.length ? shops[0][1].total : 1;
 
-  // Week label
-  var isThisWeek = weekOffset === 0;
-  var weekLabel  = isThisWeek ? 'Minggu Ini' : targetWeek;
-
-  // Week-over-week change (only show on current week)
-  var changeHtml = '';
-  if (isThisWeek && lastTotal > 0) {
-    var pct = Math.round(((thisTotal - lastTotal) / lastTotal) * 100);
-    var sign = pct >= 0 ? '+' : '';
-    var cls  = pct >= 0 ? 'tc-up' : 'tc-down';
-    var arrow = pct >= 0 ? '↑' : '↓';
-    changeHtml = '<div class="tc-change"><span class="' + cls + '">' +
-      arrow + ' ' + sign + pct + '% vs minggu lalu</span></div>';
-  }
-
-  // Calculate total spent across all time
-  var totalSpent = allReceipts.reduce(function(a,r) { return a + (r.total||0); }, 0);
-  var remainingBalance = totalFundsGiven - totalSpent;
-
   var html = '';
 
-  // Week selector
+  // Month navigation
   html += '<div class="week-selector">';
-  html += '<button class="week-nav" onclick="changeWeek(-1)">←</button>';
-  html += '<div class="week-label">' + weekLabel + ' (' + targetWeek + ')</div>';
-  html += '<button class="week-nav" onclick="changeWeek(1)"' + (weekOffset >= 0 ? ' disabled' : '') + '>→</button>';
+  html += '<button class="week-nav" onclick="changeMonth(-1)">←</button>';
+  html += '<div class="week-label">' + range.monthName + '</div>';
+  html += '<button class="week-nav" onclick="changeMonth(1)"' + (monthOffset >= 0 ? ' disabled' : '') + '>→</button>';
   html += '</div>';
 
-  // Balance hero card
+  // Balance card
   html += '<div class="total-card">';
-  html += '<div class="tc-label">Saldo Dana Tersisa</div>';
-  html += '<div class="tc-amount">Rp ' + numFmt(remainingBalance) + '</div>';
-  html += '<div class="tc-sub">Dari Rp ' + numFmt(totalFundsGiven) + ' (Terpakai: Rp ' + numFmt(totalSpent) + ')</div>';
+  html += '<div class="tc-label">Saldo ' + range.monthName + '</div>';
+  html += '<div class="tc-amount">Rp ' + numFmt(monthBalance) + '</div>';
+  html += '<div class="tc-sub">';
+  if (monthTopup > 0) {
+    html += 'Dari Rp ' + numFmt(monthlyAllowance + monthTopup) + ' (Rp ' + numFmt(monthlyAllowance) + ' + Rp ' + numFmt(monthTopup) + ' top-up)';
+  } else {
+    html += 'Dari Rp ' + numFmt(monthlyAllowance);
+  }
+  html += ' — Terpakai Rp ' + numFmt(monthSpent) + '</div>';
   html += '</div>';
 
-  // Week spending card
-  html += '<div class="total-card" style="background: linear-gradient(135deg, #5C8B5C 0%, #3A6B3A 100%);margin-top:0.8rem;">';
-  html += '<div class="tc-label">Pengeluaran ' + weekLabel + '</div>';
-  html += '<div class="tc-amount">Rp ' + numFmt(weekTotal) + '</div>';
-  html += '<div class="tc-sub">' + weekRecs.length + ' struk</div>';
-  html += changeHtml;
-  html += '</div>';
-
-  // Shop breakdown (all time)
+  // Shop breakdown
   if (shops.length) {
-    html += '<div>';
-    html += '<div class="section-title">🏪 Pengeluaran per Toko — Semua Waktu</div>';
+    html += '<div style="margin-top:1.2rem;">';
+    html += '<div class="section-title">🏪 Pengeluaran per Toko</div>';
     html += '<div class="shop-list">';
     shops.forEach(function(kv) {
       var name = kv[0], d = kv[1];
@@ -850,15 +867,15 @@ function renderSummary() {
     html += '</div></div>';
   }
 
-  // Receipts for this week
-  html += '<div>';
-  html += '<div class="section-title">🧾 Struk ' + weekLabel + '</div>';
-  if (!weekRecs.length) {
+  // Receipts for this month
+  html += '<div style="margin-top:1.2rem;">';
+  html += '<div class="section-title">🧾 Struk ' + range.monthName + '</div>';
+  if (!monthRecs.length) {
     html += '<div class="empty-state"><div class="empty-icon">🧾</div>';
-    html += '<p>Belum ada struk untuk ' + weekLabel.toLowerCase() + '.<br>Foto struk belanjaan kamu!</p></div>';
+    html += '<p>Belum ada struk bulan ini.<br>Foto struk belanjaan kamu!</p></div>';
   } else {
     html += '<div class="receipt-list">';
-    weekRecs.forEach(function(r) {
+    monthRecs.forEach(function(r) {
       var preview = (r.items||[]).slice(0,3).map(function(i){ return i.name; }).join(', ');
       if ((r.items||[]).length > 3) preview += '…';
       html += '<div class="receipt-item" onclick="toggleDetail(\'' + r._id + '\')">';
@@ -867,7 +884,7 @@ function renderSummary() {
       html += '<div class="receipt-date">' + dateFmt(r.date) + '</div>';
       if (preview) html += '<div class="receipt-preview">' + esc(preview) + '</div>';
       html += '</div>';
-      html += '<div class="receipt-total">Rp ' + numFmt(r.total||0) + '</div>';
+      html += '<div class="receipt-total">Rp ' + numFmt(Math.abs(r.total)||0) + '</div>';
       html += '</div>';
       // expandable detail
       html += '<div class="receipt-detail" id="detail-' + r._id + '">';
@@ -888,6 +905,11 @@ function renderSummary() {
   document.getElementById('summaryArea').innerHTML = html;
 }
 
+function changeMonth(delta) {
+  monthOffset = Math.min(0, monthOffset + delta);
+  renderSummary();
+}
+
 function toggleDetail(id) {
   var el = document.getElementById('detail-' + id);
   if (el) el.classList.toggle('open');
@@ -904,10 +926,6 @@ function deleteReceipt(e, id) {
   .catch(function(err) { alert('Gagal menghapus: ' + err.message); });
 }
 
-function changeWeek(delta) {
-  weekOffset = Math.min(0, weekOffset + delta);
-  renderSummary();
-}
 
 // ── HELPERS ────────────────────────────────────────────────────────
 function show(id) { document.getElementById(id).style.display = ''; }
