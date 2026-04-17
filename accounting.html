@@ -902,6 +902,38 @@ function renderSummary() {
   }
   html += '</div>';
 
+  // Top 10 most expensive items this month
+  var itemMap = {};
+  monthRecs.forEach(function(r) {
+    if (r.isTopup) return;
+    (r.items || []).forEach(function(it) {
+      var name = (it.name || 'Unknown').trim();
+      if (!itemMap[name]) itemMap[name] = { totalSpent: 0, totalQty: 0, price: it.price || 0 };
+      itemMap[name].totalSpent += (it.price || 0) * (it.qty || 1);
+      itemMap[name].totalQty += (it.qty || 1);
+    });
+  });
+  var topItems = Object.entries(itemMap)
+    .map(function(kv) { return { name: kv[0], totalSpent: kv[1].totalSpent, totalQty: kv[1].totalQty, price: kv[1].price }; })
+    .sort(function(a, b) { return b.totalSpent - a.totalSpent; })
+    .slice(0, 10);
+
+  if (topItems.length) {
+    html += '<div style="margin-top:1.2rem;">';
+    html += '<div class="section-title">💰 Top 10 Barang Termahal</div>';
+    html += '<div style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06);">';
+    topItems.forEach(function(item, idx) {
+      html += '<div style="padding:0.85rem 1rem; border-bottom:' + (idx === topItems.length - 1 ? '0' : '1') + 'px solid #f0f6fc; display:flex; justify-content:space-between; align-items:baseline; gap:0.5rem;">';
+      html += '<div style="flex:1;">';
+      html += '<div style="font-weight:600; font-size:0.9rem; color:#1a3a5c;">' + (idx+1) + '. ' + esc(item.name) + '</div>';
+      html += '<div style="font-size:0.75rem; color:#9bb0c4; margin-top:0.15rem;">×' + item.totalQty + ' — Rp ' + numFmt(item.price) + '/item</div>';
+      html += '</div>';
+      html += '<div style="font-weight:700; font-size:0.92rem; color:#1a5c3a; white-space:nowrap;">Rp ' + numFmt(item.totalSpent) + '</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
   document.getElementById('summaryArea').innerHTML = html;
 }
 
