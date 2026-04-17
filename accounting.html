@@ -483,6 +483,26 @@ body {
   </div>
 </div>
 
+<!-- ══ ADD FUNDS MODAL ═════════════════════════════════════ -->
+<div id="addFundsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; display:flex; align-items:center; justify-content:center;">
+  <div style="background:white; border-radius:16px; padding:2rem; max-width:320px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+    <div style="font-family:'Playfair Display',serif; font-size:1.2rem; color:#1a3a5c; margin-bottom:1.2rem;">➕ Tambah Dana</div>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      <div>
+        <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#6b7f94; margin-bottom:0.4rem;">Jumlah (Rp)</label>
+        <input type="number" id="addFundsAmount" style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #d0e8f7; border-radius:10px; font-size:0.95rem; color:#1a3a5c;" placeholder="Contoh: 5000000" min="0">
+      </div>
+      <div style="font-size:0.85rem; color:#6b7f94; background:#f5faff; padding:0.8rem; border-radius:8px;">
+        Total yang diberikan setelah ini: <strong style="color:#1a3a5c;">Rp <span id="modalPreviewTotal">0</span></strong>
+      </div>
+      <div style="display:flex; gap:0.7rem;">
+        <button onclick="closeAddFundsModal()" style="flex:1; background:none; border:1.5px solid #d0e8f7; border-radius:100px; padding:0.7rem 1rem; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:600; color:#6b7f94; cursor:pointer;">Batal</button>
+        <button onclick="confirmAddFunds()" style="flex:1; background:#1a5c3a; color:white; border:none; border-radius:100px; padding:0.7rem 1rem; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer;">Konfirmasi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── CONFIG ─────────────────────────────────────────────────────────
 var DB  = 'https://widiya-b2c41-default-rtdb.asia-southeast1.firebasedatabase.app';
@@ -493,6 +513,21 @@ var extracted     = null;   // parsed receipt from Claude
 var allReceipts   = [];     // full history loaded from Firebase
 var weekOffset    = 0;      // 0 = this week, -1 = last week, etc.
 var lastSavedReceipt = null; // Track last saved receipt to prevent duplicates
+var totalFundsGiven = 5000000; // Track total funds given to maid (5M IDR initially)
+
+// ── LOAD/SAVE STATE ────────────────────────────────────────────────
+function loadAppState() {
+  try {
+    var saved = localStorage.getItem('widiya-accounting-funds');
+    if (saved) totalFundsGiven = parseInt(saved, 10);
+  } catch(e) {}
+}
+
+function saveFundsState() {
+  try {
+    localStorage.setItem('widiya-accounting-funds', String(totalFundsGiven));
+  } catch(e) {}
+}
 
 // ── TAB SWITCHING ──────────────────────────────────────────────────
 function switchTab(tab) {
@@ -673,6 +708,41 @@ function showError(msg) {
   show('cameraZone');
 }
 
+// ── ADD FUNDS MODAL ────────────────────────────────────────────────
+function openAddFundsModal() {
+  document.getElementById('addFundsModal').style.display = 'flex';
+  document.getElementById('addFundsAmount').value = '';
+  updateModalPreview();
+}
+
+function closeAddFundsModal() {
+  document.getElementById('addFundsModal').style.display = 'none';
+}
+
+function updateModalPreview() {
+  var amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
+  var newTotal = totalFundsGiven + amount;
+  document.getElementById('modalPreviewTotal').textContent = numFmt(newTotal);
+}
+
+function confirmAddFunds() {
+  var amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
+  if (!amount || amount <= 0) {
+    alert('Masukkan jumlah yang valid!');
+    return;
+  }
+  totalFundsGiven += amount;
+  saveFundsState();
+  closeAddFundsModal();
+  renderSummary();
+}
+
+// Listen to amount input changes for preview
+document.addEventListener('DOMContentLoaded', function() {
+  var input = document.getElementById('addFundsAmount');
+  if (input) input.addEventListener('input', updateModalPreview);
+});
+
 // ── SUMMARY ────────────────────────────────────────────────────────
 function loadSummary() {
   document.getElementById('summaryArea').innerHTML =
@@ -747,7 +817,16 @@ function renderSummary() {
       arrow + ' ' + sign + pct + '% vs minggu lalu</span></div>';
   }
 
+  // Calculate total spent across all time
+  var totalSpent = allReceipts.reduce(function(a,r) { return a + (r.total||0); }, 0);
+  var remainingBalance = totalFundsGiven - totalSpent;
+
   var html = '';
+
+  // Add funds button
+  html += '<div style="display:flex; gap:0.8rem; margin-bottom:0.8rem;">';
+  html += '<button onclick="openAddFundsModal()" style="flex:1; background:#1a5c3a; color:white; border:none; border-radius:100px; padding:0.85rem 1.2rem; font-family:\'Inter\',sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer;">➕ Tambah Dana</button>';
+  html += '</div>';
 
   // Week selector
   html += '<div class="week-selector">';
@@ -756,11 +835,18 @@ function renderSummary() {
   html += '<button class="week-nav" onclick="changeWeek(1)"' + (weekOffset >= 0 ? ' disabled' : '') + '>→</button>';
   html += '</div>';
 
-  // Total hero card
+  // Balance hero card
   html += '<div class="total-card">';
-  html += '<div class="tc-label">Total Pengeluaran</div>';
+  html += '<div class="tc-label">Saldo Dana Tersisa</div>';
+  html += '<div class="tc-amount">Rp ' + numFmt(remainingBalance) + '</div>';
+  html += '<div class="tc-sub">Dari Rp ' + numFmt(totalFundsGiven) + ' (Terpakai: Rp ' + numFmt(totalSpent) + ')</div>';
+  html += '</div>';
+
+  // Week spending card
+  html += '<div class="total-card" style="background: linear-gradient(135deg, #5C8B5C 0%, #3A6B3A 100%);margin-top:0.8rem;">';
+  html += '<div class="tc-label">Pengeluaran ' + weekLabel + '</div>';
   html += '<div class="tc-amount">Rp ' + numFmt(weekTotal) + '</div>';
-  html += '<div class="tc-sub">' + weekRecs.length + ' struk · ' + weekLabel + '</div>';
+  html += '<div class="tc-sub">' + weekRecs.length + ' struk</div>';
   html += changeHtml;
   html += '</div>';
 
@@ -919,6 +1005,9 @@ function esc(s) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// ── INITIALIZATION ─────────────────────────────────────────────────
+loadAppState();
 </script>
 </body>
 </html>

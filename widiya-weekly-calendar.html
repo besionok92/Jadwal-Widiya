@@ -491,21 +491,25 @@ header {
   .palette {
     width: 100%;
     flex-direction: row;
-    overflow-x: auto;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    overflow-y: visible;
     padding: 10px 12px;
     gap: 8px;
     border-right: none;
     border-bottom: 1px solid var(--sand-dark);
     position: static;
+    justify-content: center;
   }
 
   .palette-label { display: none; }
 
   .palette .block {
-    flex-shrink: 0;
-    min-width: 68px;
+    flex: 0 1 calc(20% - 7px);
+    min-width: 55px;
+    max-width: 75px;
     padding: 6px 8px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .header-inner { padding: 14px 16px 12px; flex-wrap: wrap; }
