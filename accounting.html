@@ -428,6 +428,24 @@ body {
     <!-- Step 2b: error -->
     <div class="error-card" id="errorCard" style="display:none"></div>
 
+    <!-- Step 2c: add funds -->
+    <div style="background:white; border-radius:16px; padding:1.5rem; box-shadow:0 2px 12px rgba(0,0,0,0.07);">
+      <div style="font-family:'Playfair Display',serif; font-size:1.05rem; color:#1a3a5c; margin-bottom:1rem;">➕ Tambah Dana untuk Widiya</div>
+      <div style="display:flex; flex-direction:column; gap:0.8rem;">
+        <div>
+          <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#6b7f94; margin-bottom:0.35rem;">Jumlah Dana (Rp)</div>
+          <input type="number" id="addFundsAmount" style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #d0e8f7; border-radius:10px; font-family:'Inter',sans-serif; font-size:0.95rem; color:#1a3a5c;" placeholder="Contoh: 5000000" min="0" oninput="updateFundsPreview()">
+        </div>
+        <div style="font-size:0.85rem; color:#6b7f94; background:#f5faff; padding:0.8rem; border-radius:8px;">
+          Total setelah ditambah: <strong style="color:#1a3a5c;">Rp <span id="fundsPreviewTotal">5,000,000</span></strong>
+        </div>
+        <div style="display:flex; gap:0.7rem;">
+          <button onclick="document.getElementById('addFundsAmount').value=''; updateFundsPreview();" style="flex:1; background:none; border:1.5px solid #d0e8f7; border-radius:100px; padding:0.7rem 1rem; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:600; color:#6b7f94; cursor:pointer;">↩ Batal</button>
+          <button onclick="confirmAddFunds()" style="flex:1; background:#1a5c3a; color:white; border:none; border-radius:100px; padding:0.7rem 1rem; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer;">✅ Konfirmasi Tambah</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Step 3: review & save -->
     <div class="review-card" id="reviewCard" style="display:none">
       <div class="review-title">✅ Periksa Data Struk</div>
@@ -480,26 +498,6 @@ body {
 <div class="panel" id="panel-summary">
   <div class="summary-area" id="summaryArea">
     <div class="loading-msg">Memuat data…</div>
-  </div>
-</div>
-
-<!-- ══ ADD FUNDS MODAL ═════════════════════════════════════ -->
-<div id="addFundsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; display:flex; align-items:center; justify-content:center;">
-  <div style="background:white; border-radius:16px; padding:2rem; max-width:320px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
-    <div style="font-family:'Playfair Display',serif; font-size:1.2rem; color:#1a3a5c; margin-bottom:1.2rem;">➕ Tambah Dana</div>
-    <div style="display:flex; flex-direction:column; gap:1rem;">
-      <div>
-        <label style="display:block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#6b7f94; margin-bottom:0.4rem;">Jumlah (Rp)</label>
-        <input type="number" id="addFundsAmount" style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #d0e8f7; border-radius:10px; font-size:0.95rem; color:#1a3a5c;" placeholder="Contoh: 5000000" min="0">
-      </div>
-      <div style="font-size:0.85rem; color:#6b7f94; background:#f5faff; padding:0.8rem; border-radius:8px;">
-        Total yang diberikan setelah ini: <strong style="color:#1a3a5c;">Rp <span id="modalPreviewTotal">0</span></strong>
-      </div>
-      <div style="display:flex; gap:0.7rem;">
-        <button onclick="closeAddFundsModal()" style="flex:1; background:none; border:1.5px solid #d0e8f7; border-radius:100px; padding:0.7rem 1rem; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:600; color:#6b7f94; cursor:pointer;">Batal</button>
-        <button onclick="confirmAddFunds()" style="flex:1; background:#1a5c3a; color:white; border:none; border-radius:100px; padding:0.7rem 1rem; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer;">Konfirmasi</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -708,21 +706,11 @@ function showError(msg) {
   show('cameraZone');
 }
 
-// ── ADD FUNDS MODAL ────────────────────────────────────────────────
-function openAddFundsModal() {
-  document.getElementById('addFundsModal').style.display = 'flex';
-  document.getElementById('addFundsAmount').value = '';
-  updateModalPreview();
-}
-
-function closeAddFundsModal() {
-  document.getElementById('addFundsModal').style.display = 'none';
-}
-
-function updateModalPreview() {
+// ── ADD FUNDS ──────────────────────────────────────────────────────
+function updateFundsPreview() {
   var amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
   var newTotal = totalFundsGiven + amount;
-  document.getElementById('modalPreviewTotal').textContent = numFmt(newTotal);
+  document.getElementById('fundsPreviewTotal').textContent = numFmt(newTotal);
 }
 
 function confirmAddFunds() {
@@ -731,17 +719,16 @@ function confirmAddFunds() {
     alert('Masukkan jumlah yang valid!');
     return;
   }
+  if (!confirm('Tambah Rp ' + numFmt(amount) + ' untuk Widiya?\n\nTotal: Rp ' + numFmt(totalFundsGiven + amount))) {
+    return;
+  }
   totalFundsGiven += amount;
   saveFundsState();
-  closeAddFundsModal();
-  renderSummary();
+  document.getElementById('addFundsAmount').value = '';
+  updateFundsPreview();
+  // Switch to summary to see the updated balance
+  switchTab('summary');
 }
-
-// Listen to amount input changes for preview
-document.addEventListener('DOMContentLoaded', function() {
-  var input = document.getElementById('addFundsAmount');
-  if (input) input.addEventListener('input', updateModalPreview);
-});
 
 // ── SUMMARY ────────────────────────────────────────────────────────
 function loadSummary() {
@@ -822,11 +809,6 @@ function renderSummary() {
   var remainingBalance = totalFundsGiven - totalSpent;
 
   var html = '';
-
-  // Add funds button
-  html += '<div style="display:flex; gap:0.8rem; margin-bottom:0.8rem;">';
-  html += '<button onclick="openAddFundsModal()" style="flex:1; background:#1a5c3a; color:white; border:none; border-radius:100px; padding:0.85rem 1.2rem; font-family:\'Inter\',sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer;">➕ Tambah Dana</button>';
-  html += '</div>';
 
   // Week selector
   html += '<div class="week-selector">';
