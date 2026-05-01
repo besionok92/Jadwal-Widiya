@@ -511,15 +511,58 @@ var extracted     = null;   // parsed receipt from Claude
 var allReceipts   = [];     // full history loaded from Firebase
 var monthOffset   = 0;      // 0 = this month, -1 = last month, etc.
 var lastSavedReceipt = null; // Track last saved receipt to prevent duplicates
-var monthlyAllowance = 5000000; // 5M IDR per month on the 1st
+var INITIAL_BALANCE = 5000000; // one-time seed; balance carries forward month to month
 
 // ── LOAD/SAVE STATE ────────────────────────────────────────────────
-function loadAppState() {
-  // monthlyAllowance is always 5M per month, no need to load
+function loadAppState() {}
+function saveFundsState() {}
+
+// ── BALANCE HELPERS ────────────────────────────────────────────────
+function getEarliestMonthKey() {
+  var earliest = null;
+  for (var i = 0; i < allReceipts.length; i++) {
+    var r = allReceipts[i];
+    if (!r.date) continue;
+    var key = r.date.substring(0, 7);
+    if (!earliest || key < earliest) earliest = key;
+  }
+  return earliest;
 }
 
-function saveFundsState() {
-  // No state to save - monthly allowance is fixed at 5M
+function prevMonthKey(monthKey) {
+  var year  = parseInt(monthKey.substring(0,4), 10);
+  var month = parseInt(monthKey.substring(5,7), 10) - 1;
+  if (month < 1) { month = 12; year -= 1; }
+  return year + '-' + String(month).padStart(2, '0');
+}
+
+// Balance at end of given "YYYY-MM": seed + cumulative top-ups − cumulative spending,
+// counting only receipts dated on or before that month. Returns 0 for months
+// before the earliest receipt (i.e. the seed is only recognised once it's been used).
+function balanceAtEndOf(monthKey) {
+  var earliest = getEarliestMonthKey();
+  if (!earliest) return 0;
+  if (monthKey < earliest) return 0;
+  var spent = 0, topup = 0;
+  allReceipts.forEach(function(r) {
+    if (!r.date) return;
+    var key = r.date.substring(0, 7);
+    if (key > monthKey) return;
+    if (r.isTopup) topup += -(r.total || 0);
+    else spent += (r.total || 0);
+  });
+  return INITIAL_BALANCE + topup - spent;
+}
+
+function currentTotalBalance() {
+  var earliest = getEarliestMonthKey();
+  if (!earliest) return INITIAL_BALANCE;
+  var spent = 0, topup = 0;
+  allReceipts.forEach(function(r) {
+    if (r.isTopup) topup += -(r.total || 0);
+    else spent += (r.total || 0);
+  });
+  return INITIAL_BALANCE + topup - spent;
 }
 
 // ── TAB SWITCHING ──────────────────────────────────────────────────
@@ -704,7 +747,7 @@ function showError(msg) {
 // ── ADD FUNDS ──────────────────────────────────────────────────────
 function updateFundsPreview() {
   var amount = parseFloat(document.getElementById('addFundsAmount').value) || 0;
-  var newTotal = monthlyAllowance + amount;
+  var newTotal = currentTotalBalance() + amount;
   document.getElementById('fundsPreviewTotal').textContent = numFmt(newTotal);
 }
 
@@ -714,7 +757,8 @@ function confirmAddFunds() {
     alert('Masukkan jumlah yang valid!');
     return;
   }
-  if (!confirm('Top-up Rp ' + numFmt(amount) + ' untuk bulan ini?\n\nTotal bulan ini: Rp ' + numFmt(monthlyAllowance + amount))) {
+  var newTotal = currentTotalBalance() + amount;
+  if (!confirm('Top-up Rp ' + numFmt(amount) + '?\n\nSaldo baru: Rp ' + numFmt(newTotal))) {
     return;
   }
   // Create a "fund top-up" receipt to track it
@@ -762,6 +806,7 @@ function loadSummary() {
       console.log('Loaded receipts:', allReceipts);
     }
     renderSummary();
+    updateFundsPreview();
   })
   .catch(function(err) {
     document.getElementById('summaryArea').innerHTML =
@@ -813,7 +858,14 @@ function renderSummary() {
       monthSpent += (r.total || 0);
     }
   });
-  var monthBalance = monthlyAllowance + monthTopup - monthSpent;
+
+  // Carry-over model: balance at end of selected month = seed + all top-ups − all spending
+  // up through that month. Each new month starts from the previous month's ending balance.
+  var thisMonthKey = range.yearStr + '-' + range.monthStr;
+  var earliestKey  = getEarliestMonthKey();
+  var startBalance = balanceAtEndOf(prevMonthKey(thisMonthKey));
+  var seedThisMonth = (earliestKey && thisMonthKey === earliestKey) ? INITIAL_BALANCE : 0;
+  var monthBalance = startBalance + seedThisMonth + monthTopup - monthSpent;
 
   // Shop breakdown for this month
   var shopMap = {};
@@ -841,11 +893,11 @@ function renderSummary() {
   html += '<div class="tc-label">Saldo ' + range.monthName + '</div>';
   html += '<div class="tc-amount">Rp ' + numFmt(monthBalance) + '</div>';
   html += '<div class="tc-sub">';
-  if (monthTopup > 0) {
-    html += 'Dari Rp ' + numFmt(monthlyAllowance + monthTopup) + ' (Rp ' + numFmt(monthlyAllowance) + ' + Rp ' + numFmt(monthTopup) + ' top-up)';
-  } else {
-    html += 'Dari Rp ' + numFmt(monthlyAllowance);
-  }
+  var fromParts = [];
+  if (startBalance !== 0)   fromParts.push('Sisa bulan lalu Rp ' + numFmt(startBalance));
+  if (seedThisMonth > 0)    fromParts.push('Saldo awal Rp ' + numFmt(seedThisMonth));
+  if (monthTopup > 0)       fromParts.push('Top-up Rp ' + numFmt(monthTopup));
+  html += fromParts.length ? fromParts.join(' + ') : 'Saldo awal Rp 0';
   html += ' — Terpakai Rp ' + numFmt(monthSpent) + '</div>';
   html += '</div>';
 
@@ -1040,6 +1092,9 @@ function esc(s) {
 
 // ── INITIALIZATION ─────────────────────────────────────────────────
 loadAppState();
+// Pre-fetch receipts so the funds preview reflects the real cumulative balance
+// even if the user never opens the summary tab.
+loadSummary();
 </script>
 </body>
 </html>
